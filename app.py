@@ -112,6 +112,22 @@ def refresh_token():
    
    return redirect('/home')
 
+@app.route('/user-recommendations', methods=["GET", "POST"])
+def userRecommendations():
+   if 'access_token' not in session:
+      return redirect('/login')
+   
+   if datetime.now().timestamp() > session['expires_at']:
+      return redirect('/refresh-token')
+   
+   #recommended_tracks = s.getRecommendations(token,'artist', id)
+   if request.method == "POST":
+      name = str(request.form.get("name"))
+      id = s.search_for_artist(token,name)[0]['id']
+      print(id)
+      data = s.getRecommendations(token,'artists',id)
+   return render_template("user_recommendations.html",data=data)
+
 @app.route('/home')
 def home():
    return render_template('home.html')

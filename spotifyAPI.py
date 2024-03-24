@@ -67,11 +67,12 @@ def getArtist(token):
     json_result = json.loads(result.content)
     return json_result
 
-def getRecommendations(token,artistid):
-    url = f"{API_URL}recommendations?limit=10&seed_artists={artistid}"
+def getRecommendations(token,seed,id):
+    url = f"{API_URL}recommendations?limit=10&seed_artists={id}"
     headers = get_auth_header(token)
     
     result = get(url, headers=headers)
+    print(json.loads(result.content))
     json_result = json.loads(result.content)['tracks']
     
     dict = []
@@ -155,8 +156,7 @@ def userFollowedArtists(token):
 
 if __name__ == "__main__":
     token = get_token()
-    print(userPlaylists(token))
-    #term = input('Search Term: ')
-    #id = search_for_artist(token, term)[0]['id']
-    #print(id)
-    #print(getRecommendations(token,id))
+    id = search_for_artist(token,'frank ocean')[0]['id']
+    print(id)
+    print(getRecommendations(token,'artists',id))
+    
