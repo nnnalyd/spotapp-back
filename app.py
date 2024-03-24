@@ -75,9 +75,9 @@ def get_playlists():
    if datetime.now().timestamp() > session['expires_at']:
       return redirect('/refresh-token')
    
-   playlists = s.userPlaylists(session['access_token'])
-   
-   return jsonify(playlists)
+   data = s.userPlaylists(session['access_token'])[0]
+   print(data)
+   return render_template('User_Playlists.html', data=data)
 
 @app.route('/followed-artists')
 def followed_artists():
