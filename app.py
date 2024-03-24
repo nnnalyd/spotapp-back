@@ -25,7 +25,7 @@ session = {}
 
 @app.route('/')
 def index():
-   return "Welcome to Spotify <a href ='/login'> login with spotify</a>"
+   return render_template("Home_Page.html")
 
    
 @app.route('/login')
