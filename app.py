@@ -18,7 +18,6 @@ client_secret = os.getenv("CLIENT_SECRET")
 token = s.get_token()
 
 newRelease = s.newReleases(token)
-search = s.search_for_artist(token, 'frank ocean')
 
 session = {}
 
@@ -123,9 +122,11 @@ def userRecommendations():
    #recommended_tracks = s.getRecommendations(token,'artist', id)
    if request.method == "POST":
       name = str(request.form.get("name"))
-      id = s.search_for_artist(token,name)[0]['id']
+      seed = str(request.form.get("seed"))
+      id = s.search_for(token,seed,name)[0]['id']
       print(id)
-      data = s.getRecommendations(token,'artists',id)
+      seed = f'{seed}s'
+      data = s.getRecommendations(token,seed,id)
       return render_template("user_recommendations.html",data=data)
    return render_template("user_recommendations.html")
 

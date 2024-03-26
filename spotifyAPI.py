@@ -34,16 +34,20 @@ def get_auth_header(token):
     return {"Authorization" : "Bearer " + token}
 
 #searching for artist
-def search_for_artist(token, artist_name):
+def search_for(token, type, name):
     url = f"{API_URL}search"
     headers = get_auth_header(token)
-    query  = f"?q={artist_name}&type=artist&limit=5"
+    query  = f"?q={name}&type={type}&limit=5"
     #type is what we are looking for, basically filters
 
     query_url = url + query
     result = get(query_url, headers=headers)
-    json_result = json.loads(result.content)['artists']['items']
     
+    if type == 'artist':
+        json_result = json.loads(result.content)['artists']['items']
+    else:
+        json_result = json.loads(result.content)['tracks']['items']
+
     dict = []
     
     length = int(len(json_result))
@@ -51,7 +55,7 @@ def search_for_artist(token, artist_name):
     
     while i < length:
         dict.append({
-            'artist' : json_result[i]['name'],
+            'name' : json_result[i]['name'],
             'id' : json_result[i]['id']
         })
         i += 1
@@ -68,7 +72,7 @@ def getArtist(token):
     return json_result
 
 def getRecommendations(token,seed,id):
-    url = f"{API_URL}recommendations?limit=50&seed_artists={id}"
+    url = f"{API_URL}recommendations?limit=50&seed_{seed}={id}"
     headers = get_auth_header(token)
     result = get(url, headers=headers)
     json_result = json.loads(result.content)['tracks']
@@ -154,7 +158,8 @@ def userFollowedArtists(token):
 
 if __name__ == "__main__":
     token = get_token()
-    id = search_for_artist(token,'frank ocean')[0]['id']
+    type = 'artist'
+    name = input("Name: ")
+    id = search_for(token,type,name)
     print(id)
-    print(getRecommendations(token,'artists',id))
     
