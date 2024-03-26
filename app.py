@@ -119,14 +119,15 @@ def userRecommendations():
    
    if datetime.now().timestamp() > session['expires_at']:
       return redirect('/refresh-token')
-   
+
    #recommended_tracks = s.getRecommendations(token,'artist', id)
    if request.method == "POST":
       name = str(request.form.get("name"))
       id = s.search_for_artist(token,name)[0]['id']
       print(id)
       data = s.getRecommendations(token,'artists',id)
-   return render_template("user_recommendations.html",data=data)
+      return render_template("user_recommendations.html",data=data)
+   return render_template("user_recommendations.html")
 
 @app.route('/home')
 def home():

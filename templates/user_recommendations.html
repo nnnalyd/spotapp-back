@@ -1,5 +1,31 @@
-<form action=""{{ url_for("userRecommendations")}}"" method="post">
-    <label for="AName"> Name: </label>
-    <input type='text' id="Aname" name="name" placeholder="Name of Artist/track">
-    <button type="submit">Submit</button>
-</form>
+
+<head>
+    <style>
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: auto auto auto;
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form">
+        <form action=""{{ url_for("userRecommendations")}}"" method="post">
+            <label for="AName"> Name: </label>
+            <input type='text' id="Aname" name="name" placeholder="Name of Artist/track">
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <div class="recommendations-grid">
+            {% for item in data %}
+                <div class="grid_item">
+                    <h2> {{item.track_name}} </h2>
+                    <img src={{ item.track_cover }} alt="Cover image" width="100" height="100"></img>
+                    <p> By - {{ item.artist_name }}</p>
+                </div>
+            {% endfor %}
+    </div>
+
+</body>

@@ -68,13 +68,10 @@ def getArtist(token):
     return json_result
 
 def getRecommendations(token,seed,id):
-    url = f"{API_URL}recommendations?limit=10&seed_artists={id}"
+    url = f"{API_URL}recommendations?limit=50&seed_artists={id}"
     headers = get_auth_header(token)
-    
     result = get(url, headers=headers)
-    print(json.loads(result.content))
     json_result = json.loads(result.content)['tracks']
-    
     dict = []
     
     length = int(len(json_result))
@@ -82,8 +79,9 @@ def getRecommendations(token,seed,id):
     
     while i < length:
         dict.append({
-            'track name' : json_result[i]['name'],
-            'artist name' : json_result[i]['artists'][0]['name']
+            'track_name' : json_result[i]['name'],
+            'artist_name' : json_result[i]['artists'][0]['name'],
+            'track_cover' : json_result[i]['album']['images'][0]['url']
         })
         i += 1
         
