@@ -8,7 +8,7 @@ import json
 
 app = Flask(__name__)
 
-REDIRECT_URI = "http://127.0.0.1:5000/callback"
+REDIRECT_URI = "http://127.0.0.1:8000/callback"
 AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = "https://accounts.spotify.com/api/token"
 
