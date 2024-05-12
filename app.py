@@ -8,7 +8,7 @@ import json
 
 app = Flask(__name__)
 
-REDIRECT_URI = "http://127.0.0.1:8000/callback"
+REDIRECT_URI = "http://127.0.0.1:5000/callback"
 AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = "https://accounts.spotify.com/api/token"
 
@@ -124,9 +124,12 @@ def userRecommendations():
       name = str(request.form.get("name"))
       seed = str(request.form.get("seed"))
       id = s.search_for(token,seed,name)[0]['id']
+      searchName = {"search_name" : f"{s.search_for(token,seed,name)[0]['name']}"}
       print(id)
       seed = f'{seed}s'
       data = s.getRecommendations(token,seed,id)
+      data.append(searchName)
+      print(data)
       return render_template("user_recommendations.html",data=data)
    return render_template("user_recommendations.html")
 

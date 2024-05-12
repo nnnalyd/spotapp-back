@@ -88,7 +88,7 @@ def getRecommendations(token,seed,id):
             'track_cover' : json_result[i]['album']['images'][0]['url']
         })
         i += 1
-        
+    print(dict)
     return dict
 
 #getting newReleases from api
