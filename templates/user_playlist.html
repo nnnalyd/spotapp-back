@@ -11,15 +11,17 @@
         }
     </style>
 </head>
+
 <body>
     <div class="header">
-        <h1>Welcome to the home page</h1>
+        <h1>Your Playlists</h1>
     </div>
-
-    <div>
-        <a href='/playlists'>Your playlists</a>
-        <a href='/followed-artists'> Your Followed Artists</a>
-        <a href='/user-recommendations'> Find new music</a>
+    <div class="playlist-grid">
+        {% for item in data %}
+            <div class="grid_item">
+                <h2>{{item.playlist_name}}</h2>
+                <img src={{ item.playlist_img }} alt="Playlist Image" width="100" height="100"></img>
+            </div>
+        {% endfor %}
     </div>
 </body>
-

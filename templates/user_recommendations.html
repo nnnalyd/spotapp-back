@@ -3,8 +3,20 @@
     <style>
         .recommendations-grid {
             display: grid;
-            grid-template-columns: auto auto auto;
+            grid-gap: 15px;
+            grid-template-columns: auto auto auto auto auto;
 
+        }
+
+        .grid_item {
+            width: 300px;
+            height: 270px;
+            background-color: #929292;
+            border-radius: 7px;
+            text-align:center;
+            vertical-align:middle;
+            justify-content:center;
+            align-items: center;
         }
     </style>
 </head>
@@ -30,5 +42,4 @@
                 </div>
             {% endfor %}
     </div>
-
 </body>

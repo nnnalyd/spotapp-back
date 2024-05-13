@@ -116,7 +116,7 @@ def newReleases(token):
     return dict
 
 def userPlaylists(token):
-    url = f'{API_URL}me/playlists?limit=1'
+    url = f'{API_URL}me/playlists?limit=5'
     headers = get_auth_header(token)
     
     result = get(url, headers=headers)
@@ -133,7 +133,7 @@ def userPlaylists(token):
             'playlist_img' : json_result[i]['images'][0]['url']
         })
         i += 1
-    
+    print(dict)
     return dict
     
 def userFollowedArtists(token):

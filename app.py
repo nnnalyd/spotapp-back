@@ -74,9 +74,9 @@ def get_playlists():
    if datetime.now().timestamp() > session['expires_at']:
       return redirect('/refresh-token')
    
-   data = s.userPlaylists(session['access_token'])[0]
+   data = s.userPlaylists(session['access_token'])
    print(data)
-   return render_template('User_Playlists.html', data=data)
+   return render_template('user_playlist.html', data=data)
 
 @app.route('/followed-artists')
 def followed_artists():
@@ -129,7 +129,6 @@ def userRecommendations():
       seed = f'{seed}s'
       data = s.getRecommendations(token,seed,id)
       data.append(searchName)
-      print(data)
       return render_template("user_recommendations.html",data=data)
    return render_template("user_recommendations.html")
 
