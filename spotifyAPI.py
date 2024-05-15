@@ -37,7 +37,7 @@ def get_auth_header(token):
 def search_for(token, name):
     url = f"{API_URL}search"
     headers = get_auth_header(token)
-    query  = f"?q={name}&type=track%2Cartist&limit=10"
+    query  = f"?q={name}&type=track%2Cartist&limit=20"
 
     query_url = url + query
     result = get(query_url, headers=headers)
