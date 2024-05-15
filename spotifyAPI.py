@@ -37,7 +37,7 @@ def get_auth_header(token):
 def search_for(token, name):
     url = f"{API_URL}search"
     headers = get_auth_header(token)
-    query  = f"?q={name}&type=track%2Cartist&limit=5"
+    query  = f"?q={name}&type=track%2Cartist&limit=10"
 
     query_url = url + query
     result = get(query_url, headers=headers)
@@ -61,23 +61,20 @@ def search_for(token, name):
             })
             i += 1
     except Exception:
-        print(artists)
+        print('artists')
     print (dictArtists)
 
     print('Tracks --------')
-    try:
-        while i < lenTracks:
-            dictTracks.append({
-                'artist_name' : tracks[i]['album']['artists'][0]['name'],
-                'track_name' : tracks[i]['name'],
-                'img_url' : tracks[i]['album']['images'][0]['url'],
-                'id' : tracks[i]['id'],
-                'type' : tracks[i]['type']
-            })
-            i += 1
-    except Exception:
-        print(Exception)
-        print(tracks)
+    while i < lenTracks:
+        dictTracks.append({
+            'artist_name' : tracks[i]['album']['artists'][0]['name'],
+            'track_name' : tracks[i]['name'],
+            'img_url' : tracks[i]['album']['images'][0]['url'],
+            'id' : tracks[i]['id'],
+            'type' : tracks[i]['type'],
+            'preview_url': getTrack(token, tracks[i]['id'], i)
+        })
+        i += 1
     print(dictTracks)
     '''
     if type == 'artist':
@@ -101,6 +98,14 @@ def getArtist(token):
     result = get(url, headers=headers)
     json_result = json.loads(result.content)
     return json_result
+
+def getTrack(token,id, i):
+    url = f"{API_URL}tracks/{id}"
+    headers = get_auth_header(token)
+    result = get(url, headers=headers)
+    preview_url = json.loads(result.content)['preview_url']
+    print(preview_url)
+    return preview_url
 
 def getRecommendations(token,seed,id):
     url = f"{API_URL}recommendations?limit=50&seed_{seed}={id}"
