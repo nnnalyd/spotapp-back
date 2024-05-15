@@ -120,17 +120,13 @@ def userRecommendations():
       return redirect('/refresh-token')
    #recommended_tracks = s.getRecommendations(token,'artist', id)
    if request.method == "POST":
-      searched = False
       name = ''
       seed = ''
-      if searched == False:
-         name = str(request.form.get("name"))
-         dictTracks, dictArtists = s.search_for(token, name)
-         dict =[]
-         dict.append(dictTracks)
-         dict.append(dictArtists)
-         data = dict
-         return render_template("user_recommendations.html",search=data)
+      name = str(request.form.get("name"))
+      dictTracks, dictArtists = s.search_for(token, name)
+      dict =[]
+      dict.append(dictTracks)
+      dict.append(dictArtists)
       '''
       print(id)
       seed = f'{seed}s'
@@ -138,7 +134,7 @@ def userRecommendations():
       data.append(searchName)
       return render_template("user_recommendations.html",data=data)
       '''
-   return render_template("user_recommendations.html")
+   return jsonify(dict)
 
 @app.route('/home')
 def home():
