@@ -34,15 +34,52 @@ def get_auth_header(token):
     return {"Authorization" : "Bearer " + token}
 
 #searching for artist
-def search_for(token, type, name):
+def search_for(token, name):
     url = f"{API_URL}search"
     headers = get_auth_header(token)
-    query  = f"?q={name}&type={type}&limit=5"
-    #type is what we are looking for, basically filters
+    query  = f"?q={name}&type=track%2Cartist&limit=5"
 
     query_url = url + query
     result = get(query_url, headers=headers)
-    
+    artists = json.loads(result.content)['artists']['items']
+    tracks = json.loads(result.content)['tracks']['items']
+    lenArtists = int(len(artists))
+    lenTracks = int(len(tracks))
+    i = 0
+
+    dictArtists = []
+    dictTracks = []
+
+    print('Artists --------')
+    try:
+        while i < lenArtists:
+            dictArtists.append({
+                'artist_name' : artists[i]['name'],
+                'img_url' : artists[i]['images'][0]['url'],
+                'id' : artists[i]['id'],
+                'type' : artists[i]['type']
+            })
+            i += 1
+    except Exception:
+        print(artists)
+    print (dictArtists)
+
+    print('Tracks --------')
+    try:
+        while i < lenTracks:
+            dictTracks.append({
+                'artist_name' : tracks[i]['album']['artists'][0]['name'],
+                'track_name' : tracks[i]['name'],
+                'img_url' : tracks[i]['album']['images'][0]['url'],
+                'id' : tracks[i]['id'],
+                'type' : tracks[i]['type']
+            })
+            i += 1
+    except Exception:
+        print(Exception)
+        print(tracks)
+    print(dictTracks)
+    '''
     if type == 'artist':
         json_result = json.loads(result.content)['artists']['items']
     else:
@@ -50,17 +87,11 @@ def search_for(token, type, name):
 
     dict = []
     
-    length = int(len(json_result))
-    i = 0
     
-    while i < length:
-        dict.append({
-            'name' : json_result[i]['name'],
-            'id' : json_result[i]['id']
-        })
-        i += 1
-        
-    return dict
+    
+    
+    '''
+    return dictTracks, dictArtists
 
 #getting specified artist from api
 def getArtist(token):
@@ -158,8 +189,7 @@ def userFollowedArtists(token):
 
 if __name__ == "__main__":
     token = get_token()
-    type = 'artist'
     name = input("Name: ")
-    id = search_for(token,type,name)
+    id = search_for(token, name)
     print(id)
     

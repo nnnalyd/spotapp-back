@@ -118,18 +118,26 @@ def userRecommendations():
    
    if datetime.now().timestamp() > session['expires_at']:
       return redirect('/refresh-token')
-
    #recommended_tracks = s.getRecommendations(token,'artist', id)
    if request.method == "POST":
-      name = str(request.form.get("name"))
-      seed = str(request.form.get("seed"))
-      id = s.search_for(token,seed,name)[0]['id']
-      searchName = {"search_name" : f"{s.search_for(token,seed,name)[0]['name']}"}
+      searched = False
+      name = ''
+      seed = ''
+      if searched == False:
+         name = str(request.form.get("name"))
+         dictTracks, dictArtists = s.search_for(token, name)
+         dict =[]
+         dict.append(dictTracks)
+         dict.append(dictArtists)
+         data = dict
+         return render_template("user_recommendations.html",search=data)
+      '''
       print(id)
       seed = f'{seed}s'
       data = s.getRecommendations(token,seed,id)
       data.append(searchName)
       return render_template("user_recommendations.html",data=data)
+      '''
    return render_template("user_recommendations.html")
 
 @app.route('/home')
