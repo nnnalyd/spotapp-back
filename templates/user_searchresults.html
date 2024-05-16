@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            .track-grid {
+                display: grid;
+                grid-gap: 15px;
+                grid-template-columns: auto auto auto auto auto;
+            }
+            .grid_item {
+                width: 300px;
+                height: 270px;
+                background-color: #929292;
+                border-radius: 7px;
+                text-align:center;
+                vertical-align:middle;
+                justify-content:center;
+                align-items: center;
+            }
+        </style>
+        <title>Spotify Search Results</title>
+
+    </head>
+
+    <body>
+        <h1>Search Results</h1>
+        <h2>Tracks</h2>
+        <div class='track-grid' id="tracks">
+            {% for track in tracks %}
+                <div class="grid_item">
+                    <h3>{{ track.track_name }}</h3>
+                    <img src={{track.img_url}} style="height:100px;width:100px;">
+                    <audio controls>
+                        <source src="{{ track.preview_url }}" type="audio/mp3">
+                    </audio>
+                    <h2>BY - {{ track.artist_name}}</h2>
+                </div>
+            {% endfor %}
+        </div>
+        <h2>Artists</h2>
+        <div class='track-grid' id="artists">
+            {% for artist in artists %}
+                <div class="grid_item">
+                    <h3>{{ artist.artist_name }}</h3>
+                    <img src={{artist.img_url}} style="height:100px;width:100px;">
+                </div>
+            {% endfor %}
+        </div>
+    </body>
+    </html>
+</html>

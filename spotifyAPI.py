@@ -50,21 +50,25 @@ def search_for(token, name):
     dictArtists = []
     dictTracks = []
 
-    print('Artists --------')
-    try:
-        while i < lenArtists:
-            dictArtists.append({
-                'artist_name' : artists[i]['name'],
-                'img_url' : artists[i]['images'][0]['url'],
-                'id' : artists[i]['id'],
-                'type' : artists[i]['type']
-            })
-            i += 1
-    except Exception:
-        print('artists')
-    print (dictArtists)
+    dictTest = [
+        {
+            'artist_name' : item[i]['name'],
+            'img_url' : item[i]['images'][0]['url'],
+            'id' : item[i]['id'],
+            'type' : item[i]['type']
+        }
+        for item in artists
+    ]
 
-    print('Tracks --------')
+    while i < lenArtists:
+        dictArtists.append({
+            'artist_name' : artists[i]['name'],
+            'img_url' : artists[i]['images'][0]['url'],
+            'id' : artists[i]['id'],
+            'type' : artists[i]['type']
+        })
+        i += 1
+
     while i < lenTracks:
         dictTracks.append({
             'artist_name' : tracks[i]['album']['artists'][0]['name'],
@@ -75,7 +79,6 @@ def search_for(token, name):
             'preview_url': getTrack(token, tracks[i]['id'], i)
         })
         i += 1
-    print(dictTracks)
     '''
     if type == 'artist':
         json_result = json.loads(result.content)['artists']['items']
@@ -88,7 +91,7 @@ def search_for(token, name):
     
     
     '''
-    return dictTracks, dictArtists
+    return dictTracks, dictTest
 
 #getting specified artist from api
 def getArtist(token):

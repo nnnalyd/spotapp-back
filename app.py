@@ -121,20 +121,20 @@ def userRecommendations():
    #recommended_tracks = s.getRecommendations(token,'artist', id)
    if request.method == "POST":
       name = ''
-      seed = ''
       name = str(request.form.get("name"))
       dictTracks, dictArtists = s.search_for(token, name)
-      dict =[]
-      dict.append(dictTracks)
-      dict.append(dictArtists)
-      '''
-      print(id)
-      seed = f'{seed}s'
-      data = s.getRecommendations(token,seed,id)
-      data.append(searchName)
-      return render_template("user_recommendations.html",data=data)
-      '''
-   return jsonify(dict)
+      return render_template("user_searchresults.html", tracks=dictTracks,artists=dictArtists)
+   return render_template("user_recommendations.html")
+
+@app.route('/tracks')
+def get_tracks():
+   if 'access_token' not in session:
+      return redirect('/login')
+   
+   if datetime.now().timestamp() > session['expires_at']:
+      return redirect('/refresh-token')
+   
+
 
 @app.route('/home')
 def home():

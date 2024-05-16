@@ -2,9 +2,9 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('/user-recommendations')
         .then(response => response.json())
         .then(items => {
-            const itemContainer = document.getElementById('dict');
+            const itemContainer = document.getElementById('items');
             
-            dict.forEach(item => {
+            items.forEach(item => {
                 const itemDiv = document.getElementById('div');
                 const itemTitle = document.getElementById('h2');
                 const itemImg = document.getElementById('img');
