@@ -8,6 +8,7 @@ import json
 
 app = Flask(__name__)
 
+API_URL = 'https://api.spotify.com/v1/'
 REDIRECT_URI = "http://127.0.0.1:5000/callback"
 AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = "https://accounts.spotify.com/api/token"
@@ -21,6 +22,8 @@ newRelease = s.newReleases(token)
 
 session = {}
 
+def get_auth_header(token):
+   return {"Authorization" : "Bearer " + token}
 
 @app.route('/')
 def index():
@@ -29,7 +32,7 @@ def index():
    
 @app.route('/login')
 def login():
-   scope = "user-read-private user-read-email user-follow-read"
+   scope = "user-read-private user-read-email user-follow-read playlist-modify-public playlist-modify-private"
    
    params = {
       'client_id' : client_id,
@@ -144,8 +147,23 @@ def userRecommendations_results():
       dict = s.getRecommendations(token,seed,id)
       return render_template("recommendations.html", data=dict)
    return render_template("recommendations.html")
-   
 
+@app.route('/create-playlist', methods=["GET"])
+def create_Playlist():
+   if 'access_token' not in session:
+      return redirect('/login')
+   
+   if datetime.now().timestamp() > session['expires_at']:
+      return redirect('/refresh-token')
+   
+   url = f'{API_URL}me'
+   headers = get_auth_header(token)
+
+   result = requests.get(url, headers=headers)
+   print(json.loads(result.content))
+   id = json.loads(result.content)['id']
+   
+   return jsonify(s.createPlaylist(token,id))
 
 @app.route('/home')
 def home():

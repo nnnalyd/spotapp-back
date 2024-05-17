@@ -166,6 +166,28 @@ def userFollowedArtists(token):
         
     return dict
 
+def getUserid(token):
+    url = f'{API_URL}me'
+    headers = get_auth_header(token)
+
+    result = get(url, headers=headers)
+    print(json.loads(result.content))
+    id = json.loads(result.content)['id']
+    return id
+
+def createPlaylist(token,id):
+    url = f'{API_URL}users/{id}/playlists'
+    headers = get_auth_header(token)
+    data = {
+        "name": "New Playlist",
+        "description" : "Description",
+        "public" : "false"
+    }
+
+    result = get(url, headers=headers, data=data)
+    results = json.loads(result.content)
+    return results
+
 if __name__ == "__main__":
     token = get_token()
     name = input("Name: ")
