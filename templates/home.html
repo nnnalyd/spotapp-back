@@ -2,24 +2,74 @@
     <style>
         .header {
             width: auto;
-            height: 60px;
+            height: 50px;
             background-color: darkgray;
             text-align:center;
+            padding: 20px;
+            margin: 5px;
+            border-radius: 7px;
+            font-size: larger;
+        }
+
+        .side-bar{
+            width: 150px;
+            height:auto;
+            background-color: rgb(189, 189, 189);
+            text-align: center;
+            padding: 1%;
+            border-radius: 7px;
+        }
+
+        aside{
+            float: left;
+            padding: 15px;
+        }
+
+        .new-releases {
+                display: grid;
+                grid-gap: 15px;
+                grid-template-columns: auto auto auto auto auto;
+            }
+        .grid_item {
+            width: 300px;
+            height: 270px;
+            background-color: #929292;
+            border-radius: 7px;
+            text-align:center;
             vertical-align:middle;
-            justify-content: center;
+            justify-content:center;
             align-items: center;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Welcome to the home page</h1>
-    </div>
+    <header>
+        <div class="header">
+            <h1>Welcome to the home page</h1>
+        </div>
+    </header>
+    
+    <section>
+        <aside>
+            <div class="side-bar">
+                <h2><a href='/playlists'>Your playlists</a></h2>
+                <h2><a href='/followed-artists'> Your Followed Artists</a></h2>
+                <h2><a href='/user-recommendations'> Find new music</a></h2>
+            </div>
+        </aside>
+        <article>
+            <p>Contents</p>
+            <div class="new-releases">
+                {%for item in data%}
+                    <div class="grid_item">
+                        <h3>{{item.artist}}</h3>
+                        <h4>{{item.album}}</h4>
+                        <img src={{item.albumC}} style="height: 100px;width: 100px;">
+                    </div>
+                {%endfor%}
+            </div>
+        </article>
+    </section>
 
-    <div>
-        <a href='/playlists'>Your playlists</a>
-        <a href='/followed-artists'> Your Followed Artists</a>
-        <a href='/user-recommendations'> Find new music</a>
-    </div>
 </body>
 

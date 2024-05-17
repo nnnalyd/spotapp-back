@@ -37,61 +37,39 @@ def get_auth_header(token):
 def search_for(token, name):
     url = f"{API_URL}search"
     headers = get_auth_header(token)
-    query  = f"?q={name}&type=track%2Cartist&limit=20"
-
+    query  = f"?q={name}&type=track%2Cartist&limit=5"
     query_url = url + query
     result = get(query_url, headers=headers)
+
     artists = json.loads(result.content)['artists']['items']
+    print(artists)
+    print("------------------------------------------")
     tracks = json.loads(result.content)['tracks']['items']
-    lenArtists = int(len(artists))
-    lenTracks = int(len(tracks))
-    i = 0
+    print(tracks)
 
-    dictArtists = []
-    dictTracks = []
-
-    dictTest = [
+    dictTracks = [
         {
-            'artist_name' : item[i]['name'],
-            'img_url' : item[i]['images'][0]['url'],
-            'id' : item[i]['id'],
-            'type' : item[i]['type']
+            'artist_name' : item['album']['artists'][0]['name'],
+            'track_name' : item['name'],
+            'img_url' : item['album']['images'][0]['url'],
+            'id' : item['id'],
+            'type' : item['type'],
+            'preview_url': getTrack(token, item['id'])
+        }
+        for item in tracks
+    ]
+
+    dictArtists = [
+        {
+            'artist_name' : item['name'],
+            'img_url' : item['images'][0]['url'],
+            'id' : item['id'],
+            'type' : item['type']
         }
         for item in artists
     ]
 
-    while i < lenArtists:
-        dictArtists.append({
-            'artist_name' : artists[i]['name'],
-            'img_url' : artists[i]['images'][0]['url'],
-            'id' : artists[i]['id'],
-            'type' : artists[i]['type']
-        })
-        i += 1
-
-    while i < lenTracks:
-        dictTracks.append({
-            'artist_name' : tracks[i]['album']['artists'][0]['name'],
-            'track_name' : tracks[i]['name'],
-            'img_url' : tracks[i]['album']['images'][0]['url'],
-            'id' : tracks[i]['id'],
-            'type' : tracks[i]['type'],
-            'preview_url': getTrack(token, tracks[i]['id'], i)
-        })
-        i += 1
-    '''
-    if type == 'artist':
-        json_result = json.loads(result.content)['artists']['items']
-    else:
-        json_result = json.loads(result.content)['tracks']['items']
-
-    dict = []
-    
-    
-    
-    
-    '''
-    return dictTracks, dictTest
+    return dictTracks, dictArtists
 
 #getting specified artist from api
 def getArtist(token):
@@ -102,7 +80,7 @@ def getArtist(token):
     json_result = json.loads(result.content)
     return json_result
 
-def getTrack(token,id, i):
+def getTrack(token,id):
     url = f"{API_URL}tracks/{id}"
     headers = get_auth_header(token)
     result = get(url, headers=headers)

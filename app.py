@@ -138,7 +138,15 @@ def get_tracks():
 
 @app.route('/home')
 def home():
-   return render_template('home.html')
+   if 'access_token' not in session:
+      return redirect('/login')
+   
+   if datetime.now().timestamp() > session['expires_at']:
+      return redirect('/refresh-token')
+   
+   newReleases = s.newReleases(token)
+
+   return render_template('home.html', data=newReleases)
 
 #def home():
    #return render_template('test.html', data=newRelease, dataS = search)
