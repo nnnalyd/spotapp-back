@@ -126,13 +126,24 @@ def userRecommendations():
       return render_template("user_searchresults.html", tracks=dictTracks,artists=dictArtists)
    return render_template("user_recommendations.html")
 
-@app.route('/tracks')
-def get_tracks():
+@app.route('/user-recommendations/results', methods=["GET", "POST"])
+def userRecommendations_results():
    if 'access_token' not in session:
       return redirect('/login')
    
    if datetime.now().timestamp() > session['expires_at']:
-      return redirect('/refresh-token')
+      return redirect('/refresh-tokezn')
+   
+   if request.method == "POST":
+      id =''
+      seed=''
+      print('----------------------------')
+      id = str(request.form.get('id'))
+      seed = str(request.form.get('seed'))
+      print(id,seed)
+      dict = s.getRecommendations(token,seed,id)
+      return render_template("recommendations.html", data=dict)
+   return render_template("recommendations.html")
    
 
 

@@ -12,13 +12,24 @@
             }
             .grid_item {
                 width: 300px;
-                height: 270px;
+                height: max-content;
                 background-color: #929292;
                 border-radius: 7px;
                 text-align:center;
                 vertical-align:middle;
                 justify-content:center;
                 align-items: center;
+                padding: 10px;
+            }
+            .play-button {
+                display: inline-block;
+                padding: 10px 15px;
+                font-size: 12px;
+                color: white;
+                background-color: #ff4a4a;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
             }
         </style>
         <title>Spotify Search Results</title>
@@ -26,29 +37,66 @@
     </head>
 
     <body>
+        <div class="form">
+            <form action=""{{ url_for("userRecommendations")}}"" method="post">
+                <label for="AName"> Name: </label>
+                <input type='text' id="Aname" name="name" placeholder="Name of Artist/Track">
+                <button type="submit">Submit</button>
+            </form>
+        </div>
         <h1>Search Results</h1>
         <h2>Tracks</h2>
         <div class='track-grid' id="tracks">
             {% for track in tracks %}
-                <div class="grid_item">
-                    <h3>{{ track.track_name }}</h3>
-                    <img src={{track.img_url}} style="height:100px;width:100px;">
-                    <audio controls>
-                        <source src="{{ track.preview_url }}" type="audio/mp3">
-                    </audio>
-                    <h2>BY - {{ track.artist_name}}</h2>
-                </div>
+                    <div class="grid_item">
+                        <h3>{{ track.track_name }}</h3>
+                        <img src={{track.img_url}} style="height:100px;width:100px;">
+                        <p></p>
+                        <audio id="audio_{{track.id}}">
+                            <source src="{{ track.preview_url }}" type="audio/mp3">
+                        </audio>
+                        <button class="play-button" data-audio-id="audio_{{ track.id }}">Play</button>
+                        <h2>BY - {{ track.artist_name}}</h2>
+                        <form action={{url_for("userRecommendations_results")}} method="post">
+                            <input type="hidden" name="id" value={{track.id}}>
+                            <input type="hidden" name="seed" value="tracks">
+                            <button type="submit">Get Recommendations</button>
+                        </form>
+                    </div>
             {% endfor %}
         </div>
         <h2>Artists</h2>
         <div class='track-grid' id="artists">
             {% for artist in artists %}
                 <div class="grid_item">
-                    <h3>{{ artist.artist_name }}</h3>
-                    <img src={{artist.img_url}} style="height:100px;width:100px;">
+                    <form action={{url_for("userRecommendations_results")}} method="post">
+                        <h3>{{ artist.artist_name }}</h3>
+                        <img src={{artist.img_url}} style="height:100px;width:100px;">
+                        <input type="hidden" name="id" value={{artist.id}}>
+                        <input type="hidden" name="seed" value="artists">
+                        <h2></h2>
+                        <button type="submit">Get Recommendations</button>
+                    </form>
                 </div>
             {% endfor %}
         </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var playButtons = document.querySelectorAll('.play-button');
+                playButtons.forEach(function(button) {
+                    button.addEventListener('click', function() {
+                        var audioId = this.getAttribute('data-audio-id');
+                        var audio = document.getElementById(audioId);
+                        if (audio.paused) {
+                            audio.play();
+                            this.textContent = 'Pause';
+                        } else {
+                            audio.pause();
+                            this.textContent = 'Play';
+                        }
+                    });
+                });
+            });
+        </script>
     </body>
-    </html>
 </html>

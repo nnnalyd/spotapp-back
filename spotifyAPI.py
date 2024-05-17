@@ -42,10 +42,7 @@ def search_for(token, name):
     result = get(query_url, headers=headers)
 
     artists = json.loads(result.content)['artists']['items']
-    print(artists)
-    print("------------------------------------------")
     tracks = json.loads(result.content)['tracks']['items']
-    print(tracks)
 
     dictTracks = [
         {
@@ -58,7 +55,7 @@ def search_for(token, name):
         }
         for item in tracks
     ]
-
+    
     dictArtists = [
         {
             'artist_name' : item['name'],
@@ -67,6 +64,7 @@ def search_for(token, name):
             'type' : item['type']
         }
         for item in artists
+        if item['images']
     ]
 
     return dictTracks, dictArtists
@@ -93,19 +91,14 @@ def getRecommendations(token,seed,id):
     headers = get_auth_header(token)
     result = get(url, headers=headers)
     json_result = json.loads(result.content)['tracks']
-    dict = []
-    
-    length = int(len(json_result))
-    i = 0
-    
-    while i < length:
-        dict.append({
-            'track_name' : json_result[i]['name'],
-            'artist_name' : json_result[i]['artists'][0]['name'],
-            'track_cover' : json_result[i]['album']['images'][0]['url']
-        })
-        i += 1
-    print(dict)
+    dict = [
+        {
+            'track_name' : item['name'],
+            'artist_name' : item['artists'][0]['name'],
+            'track_cover' : item['album']['images'][0]['url']
+        }
+        for item in json_result
+    ]
     return dict
 
 #getting newReleases from api

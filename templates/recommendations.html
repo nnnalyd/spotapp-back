@@ -1,4 +1,3 @@
-
 <head>
     <style>
         .track-grid {
@@ -27,17 +26,15 @@
     </style>
     
 </head>
-
 <body>
-    <div class="form">
-        <form action=""{{ url_for("userRecommendations")}}"" method="post">
-            <label for="AName"> Name: </label>
-            <input type='text' id="Aname" name="name" placeholder="Name of Artist/Track">
-            <button type="submit">Submit</button>
-        </form>
-    </div>
-    <h2>Search results</h2>
-    <div id ='items' class="track-grid" onclick="">
-        <script src={{ url_for('static', filename='scripts.js') }}></script>
+    <h1>Recommendations</h1>
+    <div class="recommendations-grid">
+        {% for item in data %}
+            <div class="grid_item">
+                <h2> {{item.track_name}} </h2>
+                <img src={{ item.track_cover }} alt="Cover image" width="100" height="100"></img>
+                <p> By - {{ item.artist_name }}</p>
+            </div>
+        {% endfor %}
     </div>
 </body>
