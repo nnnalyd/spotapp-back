@@ -135,35 +135,48 @@ def userRecommendations_results():
       return redirect('/login')
    
    if datetime.now().timestamp() > session['expires_at']:
-      return redirect('/refresh-tokezn')
+      return redirect('/refresh-token')
    
    if request.method == "POST":
       id =''
       seed=''
-      print('----------------------------')
       id = str(request.form.get('id'))
       seed = str(request.form.get('seed'))
-      print(id,seed)
-      dict = s.getRecommendations(token,seed,id)
-      return render_template("recommendations.html", data=dict)
+
+      session['name'] = str(request.form.get('name'))
+
+      recommendations = s.getRecommendations(token,seed,id)
+
+      session['recommendations'] = json.dumps(recommendations)
+
+      return render_template("recommendations.html", data=recommendations)
    return render_template("recommendations.html")
 
-@app.route('/create-playlist', methods=["GET"])
+@app.route('/create-playlist', methods=["GET", "POST"])
 def create_Playlist():
    if 'access_token' not in session:
       return redirect('/login')
    
    if datetime.now().timestamp() > session['expires_at']:
       return redirect('/refresh-token')
-   
-   url = f'{API_URL}me'
-   headers = get_auth_header(token)
+   if request.method == "POST":
+      url = f'{API_URL}me'
+      headers = get_auth_header(session['access_token'])
 
-   result = requests.get(url, headers=headers)
-   print(json.loads(result.content))
-   id = json.loads(result.content)['id']
-   
-   return jsonify(s.createPlaylist(token,id))
+      result = requests.get(url, headers=headers)
+      id = json.loads(result.content)['id']
+
+      idPlaylist = s.createPlaylist(session['access_token'], id, 'playlist', session['name'])['id']
+      
+      recommendations_json = session.get('recommendations', '{}')
+      recommendations = json.loads(recommendations_json)
+
+      try:
+         s.addPlaylist(session['access_token'], idPlaylist, recommendations)
+      except TypeError:
+         return render_template("playlistsmade.html")
+      return render_template("playlistsmade.html")
+   return render_template("playlistsmade.html")
 
 @app.route('/home')
 def home():

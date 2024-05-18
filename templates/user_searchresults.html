@@ -60,6 +60,7 @@
                         <form action={{url_for("userRecommendations_results")}} method="post">
                             <input type="hidden" name="id" value={{track.id}}>
                             <input type="hidden" name="seed" value="tracks">
+                            <input type="hidden" name="name" value={{track.track_name}}>
                             <button type="submit">Get Recommendations</button>
                         </form>
                     </div>
@@ -69,11 +70,12 @@
         <div class='track-grid' id="artists">
             {% for artist in artists %}
                 <div class="grid_item">
-                    <form action={{url_for("userRecommendations_results")}} method="post">
+                    <form action={{ url_for("userRecommendations_results") }} method="post">
                         <h3>{{ artist.artist_name }}</h3>
                         <img src={{artist.img_url}} style="height:100px;width:100px;">
                         <input type="hidden" name="id" value={{artist.id}}>
                         <input type="hidden" name="seed" value="artists">
+                        <input type="hidden" name="name" value={{artist.artist_name}}>
                         <h2></h2>
                         <button type="submit">Get Recommendations</button>
                     </form>

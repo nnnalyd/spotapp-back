@@ -95,7 +95,8 @@ def getRecommendations(token,seed,id):
         {
             'track_name' : item['name'],
             'artist_name' : item['artists'][0]['name'],
-            'track_cover' : item['album']['images'][0]['url']
+            'track_cover' : item['album']['images'][0]['url'],
+            'track_id' : item['id']
         }
         for item in json_result
     ]
@@ -175,18 +176,50 @@ def getUserid(token):
     id = json.loads(result.content)['id']
     return id
 
-def createPlaylist(token,id):
+def createPlaylist(token,id, playlist_name,item):
     url = f'{API_URL}users/{id}/playlists'
-    headers = get_auth_header(token)
+    headers = {
+        "Authorization" : "Bearer " + token,
+        "Content-Type" : 'application/json'
+        }
     data = {
-        "name": "New Playlist",
-        "description" : "Description",
-        "public" : "false"
+        "name": f"{playlist_name}",
+        "description" : f"Playlist based on {item}",
+        "public" : False
     }
 
-    result = get(url, headers=headers, data=data)
+    result = post(url, headers=headers, json=data)
     results = json.loads(result.content)
+    print(results)
     return results
+
+def addPlaylist(token, id, dict):
+    url = f'{API_URL}playlists/{id}/tracks'
+    headers = {
+        "Authorization" : "Bearer " + token,
+        "Content-Type" : 'application/json'
+        }
+    trackIds = []
+    for item in dict:
+        trackIds.append(f'spotify:track:{item['track_id']}')
+    print(trackIds)
+
+    data = {
+        'uris': trackIds
+    }
+    '''
+    trackIds = []
+    for item in dict:
+        trackIds.append(f'spotify:track:{item['track_id']}')
+
+    string = ','.join(trackIds)
+
+    data = {
+        'uris': string
+    }
+    '''
+    result = json.loads(post(url, headers=headers, json=data))
+    return result
 
 if __name__ == "__main__":
     token = get_token()

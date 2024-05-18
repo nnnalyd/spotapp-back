@@ -28,6 +28,9 @@
 </head>
 <body>
     <h1>Recommendations</h1>
+    <form action={{url_for('create_Playlist')}} method="post">
+        <button type="submit">Make a Playlist</button>
+    </form>
     <div class="recommendations-grid">
         {% for item in data %}
             <div class="grid_item">
