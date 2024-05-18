@@ -78,7 +78,7 @@ def get_playlists():
       return redirect('/refresh-token')
    
    data = s.userPlaylists(session['access_token'])
-   print(data)
+
    return render_template('user_playlist.html', data=data)
 
 @app.route('/followed-artists')

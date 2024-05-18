@@ -29,16 +29,26 @@
             padding: 15px;
         }
 
+        .new-releases-box {
+            float: left;
+            width:max-content;
+            height: max-content;
+            padding:15px;
+            background-color: rgb(189, 189, 189);
+        }
+
         .new-releases {
                 display: grid;
                 grid-gap: 15px;
                 grid-template-columns: auto auto auto auto auto;
             }
+            
         .grid_item {
             width: 300px;
-            height: 270px;
+            height: max-content;
             background-color: #929292;
             border-radius: 7px;
+            padding:15px;
             text-align:center;
             vertical-align:middle;
             justify-content:center;
@@ -62,15 +72,18 @@
             </div>
         </aside>
         <article>
-            <h1 class="content-title">New Releases</h1>
-            <div class="new-releases">
-                {%for item in data%}
+            <div class="new-releases-box">
+                <h1 class="content-title">New Releases</h1>
+                <div class="new-releases">
+                    {%for item in data%}
                     <div class="grid_item">
                         <h3>{{item.artist}}</h3>
                         <h4>{{item.album}}</h4>
                         <img src={{item.albumC}} style="height: 100px;width: 100px;">
                     </div>
-                {%endfor%}
+                    {%endfor%}
+                </div>
+                
             </div>
         </article>
     </section>

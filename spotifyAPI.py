@@ -83,7 +83,7 @@ def getTrack(token,id):
     headers = get_auth_header(token)
     result = get(url, headers=headers)
     preview_url = json.loads(result.content)['preview_url']
-    print(preview_url)
+
     return preview_url
 
 def getRecommendations(token,seed,id):
@@ -111,19 +111,15 @@ def newReleases(token):
     json_result = json.loads(result.content)
     data = json_result['albums']['items']
     
-    dict = []
+    dict = [
+        {
+            'artist' : item['artists'][0]['name'],
+            'album' : item['name'],
+            'albumC' : item['images'][0]['url']
+        }
+        for item in data
+    ]
     
-    length = int(len(data))
-    i = 0
-    
-    while i < length:
-        dict.append({
-            'artist' : data[i]['artists'][0]['name'],
-            'album' : data[i]['name'],
-            'albumC' : data[i]['images'][0]['url']
-        })
-        i += 1
-        
     return dict
 
 def userPlaylists(token):
@@ -133,38 +129,30 @@ def userPlaylists(token):
     result = get(url, headers=headers)
     json_result = json.loads(result.content)['items']
 
-    dict = []
+    dict = [
+        {
+            'playlist_name' : item['name'],
+            'playlist_img' : item['images'][0]['url']
+        }
+        for item in json_result
+    ]
     
-    length = int(len(json_result))
-    i = 0
-    
-    while i < length:
-        dict.append({
-            'playlist_name' : json_result[i]['name'],
-            'playlist_img' : json_result[i]['images'][0]['url']
-        })
-        i += 1
-    print(dict)
     return dict
     
 def userFollowedArtists(token):
     url = f'{API_URL}me/following?type=artist&limit=50'
     headers = get_auth_header(token)
-    
     result = get(url, headers=headers)
+
     json_result = json.loads(result.content)['artists']['items']
     
-    dict = []
+    dict = [
+        {
+            'artist_name': item['name']
+        }
+        for item in json_result
+    ]
     
-    length = int(len(json_result))
-    i = 0
-    
-    while i < length:
-        dict.append({
-            'artist name' : json_result[i]['name'],
-        })
-        i += 1
-        
     return dict
 
 def getUserid(token):
@@ -172,7 +160,7 @@ def getUserid(token):
     headers = get_auth_header(token)
 
     result = get(url, headers=headers)
-    print(json.loads(result.content))
+
     id = json.loads(result.content)['id']
     return id
 
@@ -190,7 +178,7 @@ def createPlaylist(token,id, playlist_name,item):
 
     result = post(url, headers=headers, json=data)
     results = json.loads(result.content)
-    print(results)
+
     return results
 
 def addPlaylist(token, id, dict):
@@ -202,22 +190,11 @@ def addPlaylist(token, id, dict):
     trackIds = []
     for item in dict:
         trackIds.append(f'spotify:track:{item['track_id']}')
-    print(trackIds)
 
     data = {
         'uris': trackIds
     }
-    '''
-    trackIds = []
-    for item in dict:
-        trackIds.append(f'spotify:track:{item['track_id']}')
 
-    string = ','.join(trackIds)
-
-    data = {
-        'uris': string
-    }
-    '''
     result = json.loads(post(url, headers=headers, json=data))
     return result
 
