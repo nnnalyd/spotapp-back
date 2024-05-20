@@ -104,7 +104,7 @@ def getRecommendations(token,seed,id):
 
 #getting newReleases from api
 def newReleases(token):
-    url = f"{API_URL}browse/new-releases?limit=3"
+    url = f"{API_URL}browse/new-releases?limit=4"
     headers = get_auth_header(token)
     
     result = get(url, headers=headers)

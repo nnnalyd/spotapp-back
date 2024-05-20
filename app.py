@@ -189,9 +189,6 @@ def home():
    newReleases = s.newReleases(token)
 
    return render_template('home.html', data=newReleases)
-
-#def home():
-   #return render_template('test.html', data=newRelease, dataS = search)
    
 if __name__ == '__main__':
    app.run(host='0.0.0.0', debug=True)
