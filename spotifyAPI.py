@@ -198,6 +198,23 @@ def addPlaylist(token, id, dict):
     result = json.loads(post(url, headers=headers, json=data))
     return result
 
+def topTracks(token):
+    url = f'{API_URL}me/top/tracks'
+    headers = get_auth_header(token)
+
+    result = get(url, headers=headers)
+    print(json.loads(result.content)['items'])
+
+    tracks = [
+        {
+            'track_name': item['name'],
+            'url' : item['album']['images'][0]['url']
+        }
+        for item in json.loads(result.content)['items']
+    ]
+
+    return tracks
+
 if __name__ == "__main__":
     token = get_token()
     name = input("Name: ")

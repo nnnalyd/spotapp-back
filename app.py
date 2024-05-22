@@ -32,7 +32,7 @@ def index():
    
 @app.route('/login')
 def login():
-   scope = "user-read-private user-read-email user-follow-read playlist-modify-public playlist-modify-private"
+   scope = "user-read-private user-read-email user-top-read user-follow-read playlist-modify-public playlist-modify-private"
    
    params = {
       'client_id' : client_id,
@@ -187,8 +187,9 @@ def home():
       return redirect('/refresh-token')
    
    newReleases = s.newReleases(token)
+   toptracks = s.topTracks(session['access_token'])
 
-   return render_template('home.html', data=newReleases)
+   return render_template('home.html', newrelease=newReleases, toptracks=toptracks)
    
 if __name__ == '__main__':
    app.run(host='0.0.0.0', debug=True)
