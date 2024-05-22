@@ -4,7 +4,8 @@
             width: auto;
             height: 50px;
             background-color: darkgray;
-            text-align:center;
+            text-align:left;
+            align-items: baseline;
             padding: 20px;
             margin: 5px;
             border-radius: 7px;
@@ -28,6 +29,9 @@
             float: left;
             padding: 15px;
         }
+        body{
+          background-color: rgb(215, 215, 215);
+        }
 
         .rect-box {
             float:left;
@@ -38,6 +42,20 @@
             display: grid;
             grid-gap: 15px;
             grid-template-columns: auto auto auto auto
+        }
+        .playlist-box{
+          float:left;
+          width:max-content;
+          height: max-content;
+          padding:15px;
+          background-color: rgb(189, 189, 189);
+        }
+        .overview{
+          height: max-content;
+          background-color: #929292;
+          border-radius: 7px;
+          padding:15px;
+          float:right;
         }
             
         .grid_item {
@@ -56,23 +74,38 @@
           flex-direction: column;
         }
       
-
+        .logout{
+          float: right;
+          width: max-content;
+          height: max-content;
+          background-color: gray;
+          align-items: baseline;
+          padding: 10px;
+          margin-right: 20px;
+          border-radius: 7px;
+        }
+        .image{
+          float:left;
+        }
     </style>
 </head>
 <body>
-<header>
+  <nav>
+    <a href='/logout'><p class="logout">LOGOUT</p></a>
+  </nav>
+  <header>
     <div class="header">
-            <h1>Welcome to the home page</h1>
-        </div>
-    </header>
+      <h1>Welcome to the home page</h1>
+    </div>
+  </header>
     
-    <aside>
-      <div class="side-bar">
-        <h2><a href='/playlists'>Your playlists</a></h2>
-        <h2><a href='/followed-artists'> Your Followed Artists</a></h2>
-        <h2><a href='/user-recommendations'> Find new music</a></h2>
-      </div>
-    </aside>
+  <aside>
+    <div class="side-bar">
+      <h2><a href='/playlists'>Your playlists</a></h2>
+      <h2><a href='/followed-artists'> Your Followed Artists</a></h2>
+      <h2><a href='/user-recommendations'> Find new music</a></h2>
+    </div>
+  </aside>
   <div class="container">
       <div class="new-releases-box">
         <h1 class="content-title">New Releases</h1>
@@ -94,6 +127,13 @@
             <img src={{item.url}} style="height: 100px;width: 100px;">
           </div>
           {%endfor%} 
+        </div>
+      </div>
+      <div class="discovery-box">
+        <h1 class="content-title">Weekly Discovery Channel</h1>
+        <div class="playlist-box">
+          <img src="" alt="Playlist Image"style="height: 200px;width: 200px;" class="image">
+          <p class="overview">This Week: We got some smooth tunes for you this week prepare your ear drums!</p>
         </div>
       </div>
   </div>

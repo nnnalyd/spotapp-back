@@ -29,7 +29,11 @@ def get_auth_header(token):
 def index():
    return render_template("Home_Page.html")
 
-   
+@app.route('/logout')
+def logout():
+   session['access_token'] = 'None'
+   return redirect('/')
+
 @app.route('/login')
 def login():
    scope = "user-read-private user-read-email user-top-read user-follow-read playlist-modify-public playlist-modify-private"
@@ -188,6 +192,7 @@ def home():
    
    newReleases = s.newReleases(token)
    toptracks = s.topTracks(session['access_token'])
+   getDiscovery = None
 
    return render_template('home.html', newrelease=newReleases, toptracks=toptracks)
    

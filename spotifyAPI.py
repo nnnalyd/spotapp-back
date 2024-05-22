@@ -216,6 +216,8 @@ def topTracks(token):
 
     return tracks
 
+def getDiscovery(token):
+    #getting discovery channel playlist, should make an automated playlist that gathers different genre music based on user listening.
 if __name__ == "__main__":
     token = get_token()
     name = input("Name: ")
