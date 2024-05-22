@@ -24,6 +24,14 @@
             grid-template-columns: auto auto auto auto auto;
 
         }
+
+        .form{
+            width:100%;
+            height: max-content;
+            background-color: #929292;
+            padding: 15px;
+            vertical-align: middle;
+        }
     </style>
     
 </head>
@@ -36,8 +44,8 @@
             <button type="submit">Submit</button>
         </form>
     </div>
-    <h2>Search results</h2>
     <div id ='items' class="track-grid" onclick="">
+        <h2>Search results</h2>
         <script src={{ url_for('static', filename='scripts.js') }}></script>
     </div>
 </body>

@@ -199,7 +199,7 @@ def addPlaylist(token, id, dict):
     return result
 
 def topTracks(token):
-    url = f'{API_URL}me/top/tracks'
+    url = f'{API_URL}me/top/tracks?limit=4'
     headers = get_auth_header(token)
 
     result = get(url, headers=headers)
@@ -207,6 +207,7 @@ def topTracks(token):
 
     tracks = [
         {
+            'artist_name' : item['artists'][0]['name'],
             'track_name': item['name'],
             'url' : item['album']['images'][0]['url']
         }

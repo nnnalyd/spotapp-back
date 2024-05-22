@@ -30,18 +30,15 @@
         }
 
         .rect-box {
-            float: left;
+            float:left;
             width:max-content;
             height: max-content;
             padding:15px;
             background-color: rgb(189, 189, 189);
+            display: grid;
+            grid-gap: 15px;
+            grid-template-columns: auto auto auto auto
         }
-
-        .new-releases {
-                display: grid;
-                grid-gap: 15px;
-                grid-template-columns: auto auto auto auto auto;
-            }
             
         .grid_item {
             width: 300px;
@@ -54,51 +51,51 @@
             justify-content:center;
             align-items: center;
         }
+        .container{
+          display: flex;
+          flex-direction: column;
+        }
+      
+
     </style>
 </head>
 <body>
-    <header>
-        <div class="header">
+<header>
+    <div class="header">
             <h1>Welcome to the home page</h1>
         </div>
     </header>
     
-    <section>
-        <aside>
-            <div class="side-bar">
-                <h2><a href='/playlists'>Your playlists</a></h2>
-                <h2><a href='/followed-artists'> Your Followed Artists</a></h2>
-                <h2><a href='/user-recommendations'> Find new music</a></h2>
-            </div>
-        </aside>
-        <article>
-            <div class="new-releases-box">
-                <h1 class="content-title">New Releases</h1>
-                <div class="rect-box">
-                    {%for item in newrelease%}
-                    <div class="grid_item">
-                        <h3>{{item.artist}}</h3>
-                        <h4>{{item.album}}</h4>
-                        <img src={{item.albumC}} style="height: 100px;width: 100px;">
-                    </div>
-                    {%endfor%}
-                </div>
-            </div>
-        </article>
-        <article>
-            <div class ="top-tracks-box">
-                <h1 class="content-title">Your Top Tracks</h1>
-                <div class="rect-box">
-                    {%for item in toptracks %}
-                    <div class="grid_item">
-                        <h3>{{item.track_name}}</h3>
-                        <img src={{item.url}} style="height: 100px;width: 100px;">
-                    </div>
-                    {%endfor%}
-                </div>
-            </div>
-        </article>
-    </section>
-
+    <aside>
+      <div class="side-bar">
+        <h2><a href='/playlists'>Your playlists</a></h2>
+        <h2><a href='/followed-artists'> Your Followed Artists</a></h2>
+        <h2><a href='/user-recommendations'> Find new music</a></h2>
+      </div>
+    </aside>
+  <div class="container">
+      <div class="new-releases-box">
+        <h1 class="content-title">New Releases</h1>
+        <div class="rect-box"> 
+          {%for item in newrelease%}
+          <div class="grid_item">
+            <h3>{{item.artist}}</h3>
+            <h4>{{item.album}}</h4>
+            <img src={{item.albumC}} style="height: 100px;width: 100px;"></div>
+          {%endfor%} 
+        </div>
+      </div>
+      <div class ="top-tracks-box">
+        <h1 class="content-title">Your Top Tracks</h1>
+        <div class="rect-box"> 
+			    {%for item in toptracks %}
+          <div class="grid_item">
+            <h3>{{item.track_name}}</h3>
+            <img src={{item.url}} style="height: 100px;width: 100px;">
+          </div>
+          {%endfor%} 
+        </div>
+      </div>
+  </div>
 </body>
 

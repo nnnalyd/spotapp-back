@@ -1,34 +1,49 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Home Page</title>
-<style id="applicationStylesheet" type="text/css">
 
-</style>
+<head>
+	<style>
+		.header{
+			width: auto;
+			height:max-content;
+			padding: 20px;
+			align-items: center;
+			background-color:grey;
+			text-align: center;
+		}
+		.bottom{
+			width: 100%;
+			height:max-content;
+			padding: 20px;
+			align-items: center;
+			background-color:grey;
+			text-align: center;
+			position: fixed;
+			bottom:10px;
+		}
+		.button{
+			width:max-content;
+			height: max-content;
+			padding: 20px;
+			background-color: rgb(150, 150, 150);
+			align-items: center;
+			display: inline-block;
+			cursor: pointer;
+			border: none;
+			position: relative;
+			left: 40%;
+		}
+	</style>
 </head>
 <body>
-<div id="Home_Page">
-	<div id="Component_1__1" class="Component_1___1">
-		<div id="Your_new_way_to_find_new_music">
-			<h1>Welcome to your new way to find new music</h1>
-		</div>
+	<div class="header">
+		<h1>Welcome to your new way to find new music</h1>
 	</div>
-	<div id="Group_2">
-		<div id="Powered_by_the_Spotify_API">
-			<span>Powered by the Spotify API</span>
-		</div>
-		<div id="Created_by_Dylan_Andrade_Paez">
-			<span>Created by Dylan Andrade Paez</span>
-		</div>
+	<div class="button">
+		<a href="/login">Login with Spotify</a>
 	</div>
-	<div id="Component_2__1" class="Component_2___1">
-		<div id="Login_with_Spotify">
-			<a href="/login">Login with Spotify</span>
+	<footer>
+		<div class="bottom">
+			<h2>Created by Dylan</h2>
+			<h2>Powered by the Spotify API</h2>
 		</div>
-	</div>
-</div>
+	</footer>
 </body>
-</html>
