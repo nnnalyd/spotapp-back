@@ -36,14 +36,14 @@ def logout():
 
 @app.route('/login')
 def login():
-   scope = "user-read-private user-read-email user-top-read user-follow-read playlist-modify-public playlist-modify-private"
+   scope = "user-read-private user-read-email user-library-read user-top-read user-follow-read playlist-modify-public playlist-modify-private"
    
    params = {
       'client_id' : client_id,
       'response_type' : 'code',
       'scope' : scope,
       'redirect_uri' : REDIRECT_URI,
-      'show_dialog': True
+      'show_dialog': False
    }
    
    auth_url = f"{AUTH_URL}?{urllib.parse.urlencode(params)}"
@@ -191,10 +191,23 @@ def home():
       return redirect('/refresh-token')
    
    newReleases = s.newReleases(token)
-   toptracks = s.topTracks(session['access_token'])
+   toptracks = s.topTracks(session['access_token'], 4)
    getDiscovery = None
 
    return render_template('home.html', newrelease=newReleases, toptracks=toptracks)
+
+@app.route('/test')
+def test():
+   if 'access_token' not in session:
+      return redirect('/login')
+   
+   if datetime.now().timestamp() > session['expires_at']:
+      return redirect('/refresh-token')
+   
+   list = s.getLikedSongsIDs(session['access_token'])
+
+
+   return jsonify(s.getAudioFeatures(session['access_token'], list))
    
 if __name__ == '__main__':
    app.run(host='0.0.0.0', debug=True)

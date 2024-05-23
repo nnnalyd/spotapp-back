@@ -5,6 +5,7 @@ import os
 import base64
 from requests import post, get
 import json
+import random
 
 load_dotenv()
 
@@ -198,12 +199,11 @@ def addPlaylist(token, id, dict):
     result = json.loads(post(url, headers=headers, json=data))
     return result
 
-def topTracks(token):
-    url = f'{API_URL}me/top/tracks?limit=4'
+def topTracks(token, limit):
+    url = f'{API_URL}me/top/tracks?limit={limit}'
     headers = get_auth_header(token)
 
     result = get(url, headers=headers)
-    print(json.loads(result.content)['items'])
 
     tracks = [
         {
@@ -218,6 +218,108 @@ def topTracks(token):
 
 def getDiscovery(token):
     #getting discovery channel playlist, should make an automated playlist that gathers different genre music based on user listening.
+    pass
+
+def createDiscovery(token): #token must be session['access-token']
+    url = f'{API_URL}users/{id}/playlists'
+    playlist_name = "Discovery Channel"
+    headers = {
+        "Authorization" : "Bearer " + token,
+        "Content-Type" : 'application/json'
+        }
+    data = {
+        "name": f"{playlist_name}",
+        "description" : f"Your weekly discovery channel",
+        "public" : False
+    }
+
+    topTracks = topTracks(token, 20)
+    genreCount = {}
+    for item in topTracks:
+        if item in genreCount:
+            genreCount[f'{item}'] += 1
+        else:
+            genreCount.append(f'{item}')
+            genreCount[f'{item}'] = 0
+
+    print(genreCount)
+
+    return genreCount
+
+def getLikedSongsIDs(token):
+    url = f'{API_URL}me/tracks?limit=50'
+    headers={
+        "Authorization" : "Bearer " + token
+    }
+    result = get(url, headers=headers)
+
+    items = [
+        {
+            'id': item['track']['id']
+        }
+        for item in json.loads(result.content)['items']
+    ]
+    return items
+
+def getAudioFeatures(token, list):
+    listIDs=[]
+    for item in list:
+        listIDs.append(item['id'])
+    i = 0
+    dict = []
+    while i <= 10:
+        id = listIDs[random.randint(0,49)]
+        dict.append(id)
+        i +=1
+    ids = '%2C'.join(dict)
+
+    url = f'{API_URL}audio-features?ids={ids}'
+    headers = get_auth_header(token)
+
+    result = get(url, headers=headers)
+    features = json.loads(result.content)['audio_features']
+    totalFeatures = {
+        "init_acousticness" : 0,
+        "acousticness": 0,
+        "danceability": 0,
+        "energy": 0,
+        "instrumentalness": 0,
+        "liveness": 0,
+        "loudness": 0,
+        "speechiness": 0,
+        "tempo": 0,
+        "valence": 0
+    }
+    
+    for item in features:
+        totalFeatures['acousticness'] += item['acousticness']
+        totalFeatures['danceability'] += item['danceability']
+        totalFeatures['energy'] += item['energy']
+        totalFeatures['instrumentalness'] += item['instrumentalness']
+        totalFeatures['liveness'] += item['liveness']
+        totalFeatures['loudness'] += item['loudness']
+        totalFeatures['speechiness'] += item['speechiness']
+        totalFeatures['tempo'] += item['tempo']
+        totalFeatures['valence'] += item['valence']
+
+    totalFeatures['acousticness'] = totalFeatures['acousticness']/10
+    totalFeatures['danceability'] = totalFeatures['danceability']/10
+    totalFeatures['energy'] = totalFeatures['energy']/10
+    totalFeatures['instrumentalness'] = totalFeatures['instrumentalness']/10
+    totalFeatures['liveness'] = totalFeatures['danceability']/10
+    totalFeatures['loudness'] = totalFeatures['loudness']/10
+    totalFeatures['speechiness'] = totalFeatures['speechiness']/10
+    totalFeatures['tempo'] = totalFeatures['tempo']/10
+    totalFeatures['valence'] = totalFeatures['valence']/10
+        
+
+
+    return totalFeatures
+
+def getRecommendationsAudioFeatures(token, audioFeatures):
+    url = f'{API_URL}recommendations?target_acousticness={audioFeatures['acousticness']}&'
+
+    pass
 if __name__ == "__main__":
     token = get_token()
     name = input("Name: ")
