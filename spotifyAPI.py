@@ -246,8 +246,9 @@ def createDiscovery(token): #token must be session['access-token']
 
     return genreCount
 
-def getLikedSongsIDs(token):
-    url = f'{API_URL}me/tracks?limit=50'
+#getting user liked songs
+def getLikedSongsIDs(token,offset):
+    url = f'{API_URL}me/tracks?limit=50&{offset}'
     headers={
         "Authorization" : "Bearer " + token
     }
@@ -261,13 +262,21 @@ def getLikedSongsIDs(token):
     ]
     return items
 
+#big algo for getting average audio feature values
 def getAudioFeatures(token, list):
     listIDs=[]
-    for item in list:
-        listIDs.append(item['id'])
+    i=0
+    try:
+        for item in list:
+            listIDs.append(item['id'])
+    except Exception:
+        while i <= len(list):
+            for item in list[i]:
+                listIDs.append(item['id'])
+
     i = 0
     dict = []
-    while i <= 10:
+    while i <= 4:
         id = listIDs[random.randint(0,49)]
         dict.append(id)
         i +=1
@@ -312,14 +321,32 @@ def getAudioFeatures(token, list):
     totalFeatures['tempo'] = totalFeatures['tempo']/10
     totalFeatures['valence'] = totalFeatures['valence']/10
         
+    return totalFeatures, ids
 
-
-    return totalFeatures
-
-def getRecommendationsAudioFeatures(token, audioFeatures):
-    url = f'{API_URL}recommendations?target_acousticness={audioFeatures['acousticness']}&'
-
-    pass
+def getRecommendationsAudioFeatures(token, totalFeatures,ids):
+    string = f'target_acousticness={totalFeatures['acousticness']}\
+        &target_danceability={totalFeatures['danceability']}\
+            &target_energy={totalFeatures['energy']}\
+            &target_instrumentalness={totalFeatures['instrumentalness']}\
+            &target_liveness={totalFeatures['liveness']}\
+            &target_loudness={totalFeatures['loudness']}\
+            &target_speechiness={totalFeatures['speechiness']}\
+            &target_tempo={totalFeatures['tempo']}\
+            &target_valence={totalFeatures['valence']}'
+    url = f'{API_URL}recommendations?limit=50&seed_tracks={ids}&{string}'
+    headers = get_auth_header(token)
+    result = get(url, headers=headers)
+    response = json.loads(result.content)['tracks']
+    dict = [
+        {
+            'track_name' : item['name'],
+            'artist_name' : item['artists'][0]['name'],
+            'track_cover' : item['album']['images'][0]['url'],
+            'track_id' : item['id']
+        }
+        for item in response
+    ]
+    return dict
 if __name__ == "__main__":
     token = get_token()
     name = input("Name: ")

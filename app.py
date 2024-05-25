@@ -192,10 +192,11 @@ def home():
    
    newReleases = s.newReleases(token)
    toptracks = s.topTracks(session['access_token'], 4)
-   getDiscovery = None
+   
 
    return render_template('home.html', newrelease=newReleases, toptracks=toptracks)
 
+#testing functions route
 @app.route('/test')
 def test():
    if 'access_token' not in session:
@@ -203,11 +204,41 @@ def test():
    
    if datetime.now().timestamp() > session['expires_at']:
       return redirect('/refresh-token')
+   url = f'{API_URL}me'
+   headers = get_auth_header(session['access_token'])
+
+   result = requests.get(url, headers=headers)
+   id = json.loads(result.content)['id']
    
    list = s.getLikedSongsIDs(session['access_token'])
+   totalFeatures,ids = s.getAudioFeatures(session['access_token'], list)
 
+   getDiscovery = s.createPlaylist(session['access_token'], id, 'Discovery Channel', 'user')['id']
+   recommendations = s.getRecommendationsAudioFeatures(session['access_token'], totalFeatures,ids)
+   try:
+      s.addPlaylist(session['access_token'], getDiscovery, recommendations)
+   except TypeError:
+      return render_template("playlistsmade.html")
 
-   return jsonify(s.getAudioFeatures(session['access_token'], list))
+   return jsonify('Test')
+
+@app.route('/discovery-test')
+def getDiscovery():
+   if 'access_token' not in session:
+      return redirect('/login')
+   
+   if datetime.now().timestamp() > session['expires_at']:
+      return redirect('/refresh-token')
+   i = 0
+   offset = f'&offset={i}'
+   totalList =[]
+   while i <= 100:
+      list = s.getLikedSongsIDs(session['access_token'], offset)
+      totalList.append(list)
+      i+=50
+   totalFeatures,ids = s.getAudioFeatures(session['access_token'], totalList)
+   
+   return totalFeatures
    
 if __name__ == '__main__':
    app.run(host='0.0.0.0', debug=True)
