@@ -266,18 +266,24 @@ def getLikedSongsIDs(token,offset):
 def getAudioFeatures(token, list):
     listIDs=[]
     i=0
+    '''
     try:
         for item in list:
             listIDs.append(item['id'])
     except Exception:
-        while i <= len(list):
-            for item in list[i]:
-                listIDs.append(item['id'])
+    '''
+    while i < len(list):
+        a = 0
+        for item in list[i]:
+            listIDs.append(item['id'])
+            print(f'appended {a}')
+            a +=1
+        i +=1
 
     i = 0
     dict = []
     while i <= 4:
-        id = listIDs[random.randint(0,49)]
+        id = listIDs[random.randint(0,len(listIDs))]
         dict.append(id)
         i +=1
     ids = '%2C'.join(dict)
