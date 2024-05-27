@@ -74,7 +74,7 @@
           flex-direction: column;
         }
       
-        .logout{
+        .btnL{
           float: right;
           width: max-content;
           height: max-content;
@@ -87,11 +87,33 @@
         .image{
           float:left;
         }
+        .btn{
+          width: 140px;
+          height: auto;
+          background-color: #929292;
+          padding: 5px;
+          border-radius: 7px;
+          font-size: 20px;
+        }
+        @font-face {
+          font-family: 'Nexa-Heavy'; /* Name your font family */
+          src: url('nexa/Nexa-Heavy.ttf'); /* Locate the .ttf file within your directory*/
+        }
+        @font-face {
+          font-family: 'Nexa-ExtraLight';
+          src: url('nexa/Nexa-ExtraLight.ttf');
+        }
+        h1,h2{
+          font-family: 'Nexa-Heavy', sans-serif;
+        }
+        h3,h4,p{
+          font-family: 'Nexa-ExtraLight',  sans-serif;
+        }
     </style>
 </head>
 <body>
   <nav>
-    <a href='/logout'><p class="logout">LOGOUT</p></a>
+    <a href='/logout'><button class="btnL">LOGOUT</button></a>
   </nav>
   <header>
     <div class="header">
@@ -101,11 +123,11 @@
     
   <aside>
     <div class="side-bar">
-      <h2><a href='/test'>Test</a></h2>
-      <h2><a href='/discovery-test'>Discovery</a></h2>
-      <h2><a href='/playlists'>Your playlists</a></h2>
-      <h2><a href='/followed-artists'> Your Followed Artists</a></h2>
-      <h2><a href='/user-recommendations'> Find new music</a></h2>
+      <h2><a href='/test'><button class="btn">TESTING</button></a></h2>
+      <h2><a href='/discovery-test'><button class="btn">Discovery</button></a></h2>
+      <h2><a href='/playlists'><button class="btn">Your Playlists</button></a></h2>
+      <h2><a href='/followed-artists'> <button class="btn">Your Followed Artists</button></a></h2>
+      <h2><a href='/user-recommendations'><button class="btn">Find New Music</button></a></h2>
     </div>
   </aside>
   <div class="container">
@@ -116,7 +138,7 @@
           <div class="grid_item">
             <h3>{{item.artist}}</h3>
             <h4>{{item.album}}</h4>
-            <img src={{item.albumC}} style="height: 100px;width: 100px;"></div>
+            <img src={{item.albumC}} style="height: 200px;width: 200px;"></div>
           {%endfor%} 
         </div>
       </div>
@@ -126,7 +148,7 @@
 			    {%for item in toptracks %}
           <div class="grid_item">
             <h3>{{item.track_name}}</h3>
-            <img src={{item.url}} style="height: 100px;width: 100px;">
+            <img src={{item.url}} style="height: 200px;width: 200px;">
           </div>
           {%endfor%} 
         </div>
