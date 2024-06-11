@@ -1,51 +1,36 @@
-
+<!DOCTYPE html>
 <head>
-    <style>
-        .track-grid {
-            display: grid;
-            grid-gap: 15px;
-            grid-template-columns: auto auto auto auto auto;
-
-        }
-
-        .grid_item {
-            width: 300px;
-            height: 270px;
-            background-color: #929292;
-            border-radius: 7px;
-            text-align:center;
-            vertical-align:middle;
-            justify-content:center;
-            align-items: center;
-        }
-        .recommendations-grid {
-            display: grid;
-            grid-gap: 15px;
-            grid-template-columns: auto auto auto auto auto;
-
-        }
-
-        .form{
-            width:100%;
-            height: max-content;
-            background-color: #929292;
-            padding: 15px;
-            vertical-align: middle;
-        }
-    </style>
-    
+    <link rel="stylesheet" type="text/css" href={{url_for('static', filename='styles/styles.css')}}>
 </head>
 
 <body>
-    <div class="form">
-        <form action=""{{ url_for("userRecommendations")}}"" method="post">
-            <label for="AName"> Name: </label>
-            <input type='text' id="Aname" name="name" placeholder="Name of Artist/Track">
-            <button type="submit">Submit</button>
-        </form>
+    <header>
+        <div class="header">
+          <h1>Recommendations</h1>
+        </div>
+      </header>
+    <aside>
+        <div class="side-bar">
+          <h2><a href='home'><button class="btn">Home</button></a></h2>
+          <h2><a href='/test'><button class="btn">TESTING</button></a></h2>
+          <h2><a href='/discovery-test'><button class="btn">Discovery</button></a></h2>
+          <h2><a href='/playlists'><button class="btn">Your Playlists</button></a></h2>
+          <h2><a href='/followed-artists'> <button class="btn">Your Followed Artists</button></a></h2>
+          <h2><a href='/user-recommendations'><button class="btn">Find New Music</button></a></h2>
+        </div>
+      </aside>
+    <div class="container">
+        <div class="form">
+            <form action=""{{ url_for("userRecommendations")}}"" method="post">
+                <label for="AName"> Name: </label>
+                <input type='text' id="Aname" name="name" placeholder="Name of Artist/Track">
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+        <div id ='items' class="track-grid" onclick="">
+            <h2>Search results</h2>
+            <script src={{ url_for('static', filename='scripts.js') }} onload="userRecommendations()"></script>
+        </div>
     </div>
-    <div id ='items' class="track-grid" onclick="">
-        <h2>Search results</h2>
-        <script src={{ url_for('static', filename='scripts.js') }}></script>
-    </div>
+    
 </body>

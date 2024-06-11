@@ -20,17 +20,92 @@
         .recommendations-grid {
             display: grid;
             grid-gap: 15px;
-            grid-template-columns: auto auto auto auto auto;
+            grid-template-columns: auto auto auto auto;
 
+        }
+        .body{
+            background-color: rgb(215, 215, 215);
+        }
+        .container{
+            width:auto;
+            height:max-content;
+            background-color: rgb(215, 215, 215);
+            float:left;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .side-bar{
+            width: 150px;
+            height:max-content;
+            background-color: rgb(189, 189, 189);
+            text-align: center;
+            padding: 15px;
+            border-radius: 7px;
+        }
+        aside{
+            float: left;
+            padding: 15px;
+        }
+        @font-face {
+          font-family: 'Nexa-Heavy'; /* Name your font family */
+          src: url('nexa/Nexa-Heavy.ttf'); /* Locate the .ttf file within your directory*/
+        }
+        @font-face {
+          font-family: 'Nexa-ExtraLight';
+          src: url('nexa/Nexa-ExtraLight.ttf');
+        }
+        h1,h2{
+          font-family: 'Nexa-Heavy', sans-serif;
+        }
+        h3,h4,p{
+          font-family: 'Nexa-ExtraLight',  sans-serif;
+        }
+        .btn{
+          width: 140px;
+          height: auto;
+          background-color: #929292;
+          padding: 5px;
+          border-radius: 7px;
+          font-size: 20px;
+          cursor: pointer;
+          font-family: 'Nexa-Heavy',sans-serif;
+        }
+        .header {
+            width: auto;
+            height: 50px;
+            background-color: darkgray;
+            text-align:left;
+            align-items: baseline;
+            padding: 20px;
+            margin: 5px;
+            border-radius: 7px;
+            font-size: larger;
         }
     </style>
     
 </head>
 <body>
-    <h1>Recommendations</h1>
+    <header>
+        <div class="header">
+          <h1>Recommendations</h1>
+        </div>
+      </header>
+    <aside>
+        <div class="side-bar">
+          <h2><a href='/home'><button class="btn">Home</button></a></h2>
+          <h2><a href='/test'><button class="btn">TESTING</button></a></h2>
+          <h2><a href='/discovery-test'><button class="btn">Discovery</button></a></h2>
+          <h2><a href='/playlists'><button class="btn">Your Playlists</button></a></h2>
+          <h2><a href='/followed-artists'> <button class="btn">Your Followed Artists</button></a></h2>
+          <h2><a href='/user-recommendations'><button class="btn">Find New Music</button></a></h2>
+        </div>
+    </aside>
+    <div class="container">
     <form action={{url_for('create_Playlist')}} method="post">
         <button type="submit">Make a Playlist</button>
     </form>
+    <p>Dont like what you see?</p>
+    <a href="/user-recommendations"><button>HOME</button></a>
     <div class="recommendations-grid">
         {% for item in data %}
             <div class="grid_item">
@@ -39,5 +114,6 @@
                 <p> By - {{ item.artist_name }}</p>
             </div>
         {% endfor %}
+    </div>
     </div>
 </body>

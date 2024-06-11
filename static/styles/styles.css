@@ -1,0 +1,102 @@
+@font-face {
+    font-family: 'Nexa-Heavy'; /* Name your font family */
+    src: url('nexa/Nexa-Heavy.ttf'); /* Locate the .ttf file within your directory*/
+}
+@font-face {
+    font-family: 'Nexa-ExtraLight';
+    src: url('nexa/Nexa-ExtraLight.ttf');
+}
+h1,h2{
+    font-family: 'Nexa-Heavy', sans-serif;
+}
+h3,h4,p{
+    font-family: 'Nexa-ExtraLight',  sans-serif;
+}
+.btn{
+    width: 140px;
+    height: auto;
+    background-color: #929292;
+    padding: 5px;
+    border-radius: 7px;
+    font-size: 20px;
+    cursor: pointer;
+    font-family: 'Nexa-Heavy',sans-serif;
+}
+.header {
+    width: auto;
+    height: 50px;
+    background-color: darkgray;
+    text-align:left;
+    align-items: baseline;
+    padding: 20px;
+    margin: 5px;
+    border-radius: 7px;
+    font-size: larger;
+}
+.container{
+    width:auto;
+    height:max-content;
+    background-color: rgb(215, 215, 215);
+    float:left;
+}
+.side-bar{
+    width: 150px;
+    height:100vh;
+    background-color: rgb(189, 189, 189);
+    text-align: center;
+    padding: 15px;
+    border-radius: 7px;
+}
+aside{
+    float: left;
+    padding: 15px;
+}
+.form{
+    width:100%;
+    height: max-content;
+    background-color: #929292;
+    padding: 15px;
+    vertical-align: middle;
+}
+.track-grid {
+    display: grid;
+    grid-gap: 15px;
+    grid-template-columns: auto auto auto auto auto;
+
+}
+.btnL{
+    float: right;
+    width: max-content;
+    height: max-content;
+    background-color: gray;
+    align-items: baseline;
+    padding: 10px;
+    margin-right: 20px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-family: 'Nexa-Heavy',sans-serif;
+  }
+.image{
+    float:left;
+}
+
+.playlist-box{
+    float:left;
+    width:max-content;
+    height: max-content;
+    padding:15px;
+    background-color: rgb(189, 189, 189);
+  }
+.overview{
+    height: max-content;
+    background-color: #929292;
+    border-radius: 7px;
+    padding:15px;
+    float:right;
+}
+.content-title {
+    font-size: 30px;
+}
+.body{
+    background-color: rgb(215, 215, 215);
+}

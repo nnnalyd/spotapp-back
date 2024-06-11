@@ -8,7 +8,7 @@
             .track-grid {
                 display: grid;
                 grid-gap: 15px;
-                grid-template-columns: auto auto auto auto auto;
+                grid-template-columns: auto auto auto auto;
             }
             .grid_item {
                 width: 300px;
@@ -31,12 +31,83 @@
                 border-radius: 5px;
                 cursor: pointer;
             }
+            @font-face {
+                font-family: 'Nexa-Heavy'; /* Name your font family */
+                src: url('nexa/Nexa-Heavy.ttf'); /* Locate the .ttf file within your directory*/
+            }
+            @font-face {
+                font-family: 'Nexa-ExtraLight';
+                src: url('nexa/Nexa-ExtraLight.ttf');
+            }
+            h1,h2{
+                font-family: 'Nexa-Heavy', sans-serif;  
+            }
+            h3,h4,p{
+                font-family: 'Nexa-ExtraLight',  sans-serif;
+            }
+            .btn{
+                width: 140px;
+                height: auto;
+                background-color: #929292;
+                padding: 5px;
+                border-radius: 7px;
+                font-size: 20px;
+                cursor: pointer;
+                font-family: 'Nexa-Heavy',sans-serif;
+            }
+            .header {
+                width: auto;
+                height: 50px;
+                background-color: darkgray;
+                text-align:left;
+                align-items: baseline;
+                padding: 20px;
+                margin: 5px;
+                border-radius: 7px;
+                font-size: larger;
+            }
+            .container{
+                width:auto;
+                height:max-content;
+                background-color: rgb(215, 215, 215);
+                float:left;
+                padding: 15px;
+                border-radius: 5px;
+            }
+            .side-bar{
+                width: 150px;
+                height:100vh;
+                background-color: rgb(189, 189, 189);
+                text-align: center;
+                padding: 15px;
+                border-radius: 7px;
+            }
+            aside{
+                float: left;
+                padding: 15px;
+            }
         </style>
         <title>Spotify Search Results</title>
 
     </head>
 
     <body>
+        <header>
+            <div class="header">
+              <h1>Recommendations</h1>
+            </div>
+          </header>
+        <aside>
+            <div class="side-bar">
+              <h2><a href='home'><button class="btn">Home</button></a></h2>
+              <h2><a href='/test'><button class="btn">TESTING</button></a></h2>
+              <h2><a href='/discovery-test'><button class="btn">Discovery</button></a></h2>
+              <h2><a href='/playlists'><button class="btn">Your Playlists</button></a></h2>
+              <h2><a href='/followed-artists'> <button class="btn">Your Followed Artists</button></a></h2>
+              <h2><a href='/user-recommendations'><button class="btn">Find New Music</button></a></h2>
+            </div>
+        </aside>
+        <div class="container">
         <div class="form">
             <form action=""{{ url_for("userRecommendations")}}"" method="post">
                 <label for="AName"> Name: </label>
@@ -82,23 +153,7 @@
                 </div>
             {% endfor %}
         </div>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                var playButtons = document.querySelectorAll('.play-button');
-                playButtons.forEach(function(button) {
-                    button.addEventListener('click', function() {
-                        var audioId = this.getAttribute('data-audio-id');
-                        var audio = document.getElementById(audioId);
-                        if (audio.paused) {
-                            audio.play();
-                            this.textContent = 'Pause';
-                        } else {
-                            audio.pause();
-                            this.textContent = 'Play';
-                        }
-                    });
-                });
-            });
-        </script>
+        <script src={{ url_for('static', filename='scripts.js') }} onload="audioPlayer()"></script>
+        </div>
     </body>
 </html>

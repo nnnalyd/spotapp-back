@@ -34,8 +34,13 @@ def logout():
    session['access_token'] = 'None'
    return redirect('/')
 
+#----------------------------------SPOTIFY ESSENTIALS DO NOT TOUCH-------------------------------------------------#
+
+#our login route allows to get authentication and permissions from user, spotify handles login redirect and gives us
+#access tokens for the program
 @app.route('/login')
 def login():
+   #scope defines the permissions our user can give us, they have the option to decline auth
    scope = "user-read-private user-read-email user-library-read user-top-read user-follow-read playlist-modify-public playlist-modify-private"
    
    params = {
@@ -50,6 +55,7 @@ def login():
    
    return redirect(auth_url)
 
+#callback occurs after login route, we assign our access tokens into our session 
 @app.route('/callback')
 def callback():
    if 'error' in request.args:
@@ -67,11 +73,35 @@ def callback():
    response = requests.post(TOKEN_URL, data=req_body)
    token_info = response.json()
    
-   session['access_token'] = token_info['access_token']
-   session['refresh_token'] = token_info['refresh_token']
-   session['expires_at'] = datetime.now().timestamp() + token_info['expires_in']     
+   session['access_token'] = token_info['access_token'] #access tokens given to us by spotify are stored in a session
+   session['refresh_token'] = token_info['refresh_token'] #refresh token required when checking if we still have an access token
+   session['expires_at'] = datetime.now().timestamp() + token_info['expires_in'] #our tokens have expiration times set by spotify
    
    return redirect('/home') 
+
+#refresh route refreshes our auth with the user, giving us our tokens again
+@app.route('/refresh-token')
+def refresh_token():
+   if 'refresh_token' not in session:
+      return redirect('/login')
+   
+   #if the expiration time has been met we request another token.
+   if datetime.now().timestamp() > session['expires_at']:
+      req_body = {
+         'grant_type': 'refresh_token',
+         'refresh_token': session['refresh_token'],
+         'client_id': client_id,
+         'client_secret': client_secret
+      }
+      
+   response = requests.post(TOKEN_URL, data=req_body)
+   new_token_info = response.json()
+   session['access_token'] = new_token_info['access_token']
+   session['expires_at'] = datetime.now().timestamp() + new_token_info['expires_in']     
+   
+   return redirect('/home')
+
+#-------------------------------------------------------------------------------------------------------------#
 
 @app.route('/playlists')
 def get_playlists():
@@ -96,27 +126,6 @@ def followed_artists():
    artists = s.userFollowedArtists(session['access_token'])
    
    return jsonify(artists)
-
-@app.route('/refresh-token')
-def refresh_token():
-   if 'refresh_token' not in session:
-      return redirect('/login')
-   
-   if datetime.now().timestamp() > session['expires_at']:
-      req_body = {
-         'grant_type': 'refresh_token',
-         'refresh_token': session['refresh_token'],
-         'client_id': client_id,
-         'client_secret': client_secret
-      }
-      
-   response = requests.post(TOKEN_URL, data=req_body)
-   new_token_info = response.json()
-   
-   session['access_token'] = new_token_info['access_token']
-   session['expires_at'] = datetime.now().timestamp() + new_token_info['expires_in']     
-   
-   return redirect('/home')
 
 @app.route('/user-recommendations', methods=["GET", "POST"])
 def userRecommendations():
@@ -235,10 +244,9 @@ def getDiscovery():
    result = requests.get(url, headers=headers)
    id = json.loads(result.content)['id']
    i = 0
-   offset = f'&offset={i}'
    totalList =[]
    while i <= 1000:
-      list = s.getLikedSongsIDs(session['access_token'], offset)
+      list = s.getLikedSongsIDs(session['access_token'], f'&offset={i}')
       totalList.append(list)
       i+=50
    totalFeatures,ids = s.getAudioFeatures(session['access_token'], totalList)

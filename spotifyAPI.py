@@ -65,20 +65,12 @@ def search_for(token, name):
             'type' : item['type']
         }
         for item in artists
-        if item['images']
+        if item['images'] #if the images item is found then we can create the key and value, if not then we just skip it and add everything else
     ]
 
     return dictTracks, dictArtists
 
-#getting specified artist from api
-def getArtist(token):
-    url = f"{API_URL}artists/2h93pZq0e7k5yf4dywlkpM"
-    headers = get_auth_header(token)
-
-    result = get(url, headers=headers)
-    json_result = json.loads(result.content)
-    return json_result
-
+#getting track preview url (do not change until later, called in app.py, be careful)
 def getTrack(token,id):
     url = f"{API_URL}tracks/{id}"
     headers = get_auth_header(token)
@@ -233,7 +225,7 @@ def createDiscovery(token): #token must be session['access-token']
         "public" : False
     }
 
-    topTracks = topTracks(token, 20)
+    topTracks = topTracks(token, 20) #think i was grabbing different genres here
     genreCount = {}
     for item in topTracks:
         if item in genreCount:
@@ -249,9 +241,7 @@ def createDiscovery(token): #token must be session['access-token']
 #getting user liked songs
 def getLikedSongsIDs(token,offset):
     url = f'{API_URL}me/tracks?limit=50&{offset}'
-    headers={
-        "Authorization" : "Bearer " + token
-    }
+    headers=get_auth_header(token)
     result = get(url, headers=headers)
 
     items = [
@@ -261,6 +251,15 @@ def getLikedSongsIDs(token,offset):
         for item in json.loads(result.content)['items']
     ]
     return items
+
+def checkSaved(token,id):
+    url = f'{API_URL}me/tracks/contains?ids={id}'
+    headers=get_auth_header(token)
+    result = get(url, headers=headers)
+
+    boolean = json.loads(result.content)
+
+    return boolean
 
 #big algo for getting average audio feature values
 def getAudioFeatures(token, list):
@@ -275,6 +274,7 @@ def getAudioFeatures(token, list):
     while i < len(list):
         a = 0
         for item in list[i]:
+            print(checkSaved(token,item['id']))
             listIDs.append(item['id'])
             print(f'appended {a}')
             a +=1
@@ -294,29 +294,33 @@ def getAudioFeatures(token, list):
     result = get(url, headers=headers)
     features = json.loads(result.content)['audio_features']
     totalFeatures = {
-        "init_acousticness" : 0,
-        "acousticness": 0,
-        "danceability": 0,
-        "energy": 0,
-        "instrumentalness": 0,
-        "liveness": 0,
-        "loudness": 0,
-        "speechiness": 0,
-        "tempo": 0,
-        "valence": 0
+        "target_acousticness=": 0,
+        "target_danceability=": 0,
+        "target_energy=": 0,
+        "target_instrumentalness=": 0,
+        "target_liveness=": 0,
+        "target_loudness=": 0,
+        "target_speechiness=": 0,
+        "target_tempo=": 0,
+        "target_valence=": 0
     }
     
     for item in features:
-        totalFeatures['acousticness'] += item['acousticness']
-        totalFeatures['danceability'] += item['danceability']
-        totalFeatures['energy'] += item['energy']
-        totalFeatures['instrumentalness'] += item['instrumentalness']
-        totalFeatures['liveness'] += item['liveness']
-        totalFeatures['loudness'] += item['loudness']
-        totalFeatures['speechiness'] += item['speechiness']
-        totalFeatures['tempo'] += item['tempo']
-        totalFeatures['valence'] += item['valence']
+        totalFeatures['target_acousticness='] += item['acousticness']
+        totalFeatures['target_danceability='] += item['danceability']
+        totalFeatures['target_energy='] += item['energy']
+        totalFeatures['target_instrumentalness='] += item['instrumentalness']
+        totalFeatures['target_liveness='] += item['liveness']
+        totalFeatures['target_loudness='] += item['loudness']
+        totalFeatures['target_speechiness='] += item['speechiness']
+        totalFeatures['target_tempo='] += item['tempo']
+        totalFeatures['target_valence='] += item['valence']
+    featuresList = []
+    for item in totalFeatures:
+        totalFeatures[item] = totalFeatures[item]/10
+        featuresList.append(item+str(totalFeatures[item]))
 
+    '''
     totalFeatures['acousticness'] = totalFeatures['acousticness']/10
     totalFeatures['danceability'] = totalFeatures['danceability']/10
     totalFeatures['energy'] = totalFeatures['energy']/10
@@ -326,11 +330,14 @@ def getAudioFeatures(token, list):
     totalFeatures['speechiness'] = totalFeatures['speechiness']/10
     totalFeatures['tempo'] = totalFeatures['tempo']/10
     totalFeatures['valence'] = totalFeatures['valence']/10
+    '''
         
-    return totalFeatures, ids
+    return featuresList, ids
 
-def getRecommendationsAudioFeatures(token, totalFeatures,ids):
-    string = f'target_acousticness={totalFeatures['acousticness']}\
+def getRecommendationsAudioFeatures(token, featuresList,ids):
+    string = '&'.join(featuresList)
+    '''
+    f'target_acousticness={totalFeatures['acousticness']}\
         &target_danceability={totalFeatures['danceability']}\
             &target_energy={totalFeatures['energy']}\
             &target_instrumentalness={totalFeatures['instrumentalness']}\
@@ -339,6 +346,7 @@ def getRecommendationsAudioFeatures(token, totalFeatures,ids):
             &target_speechiness={totalFeatures['speechiness']}\
             &target_tempo={totalFeatures['tempo']}\
             &target_valence={totalFeatures['valence']}'
+    '''
     url = f'{API_URL}recommendations?limit=50&seed_tracks={ids}&{string}'
     headers = get_auth_header(token)
     result = get(url, headers=headers)
@@ -353,6 +361,7 @@ def getRecommendationsAudioFeatures(token, totalFeatures,ids):
         for item in response
     ]
     return dict
+
 if __name__ == "__main__":
     token = get_token()
     name = input("Name: ")
