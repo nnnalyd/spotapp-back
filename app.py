@@ -5,6 +5,7 @@ import urllib.parse
 import requests
 from datetime import *
 import json
+#import sqldatabase
 
 app = Flask(__name__)
 
@@ -36,11 +37,11 @@ def logout():
 
 #----------------------------------SPOTIFY ESSENTIALS DO NOT TOUCH-------------------------------------------------#
 
-#our login route allows to get authentication and permissions from user, spotify handles login redirect and gives us
-#access tokens for the program
+# our login route allows to get authentication and permissions from user, spotify handles login redirect and gives us
+# access tokens for the program
 @app.route('/login')
 def login():
-   #scope defines the permissions our user can give us, they have the option to decline auth
+   # scope defines the permissions our user can give us, they have the option to decline auth
    scope = "user-read-private user-read-email user-library-read user-top-read user-follow-read playlist-modify-public playlist-modify-private"
    
    params = {
@@ -50,15 +51,23 @@ def login():
       'redirect_uri' : REDIRECT_URI,
       'show_dialog': False
    }
+
+   date = datetime.now()
+   start_date = date.strftime('%d%m%y')
+   date2 = date + timedelta(days=7)
+   next_date = date2.strftime('%d%m%y')
+
+   #sqldatabase.insertData(id, start_date, next_date)
+
    
    auth_url = f"{AUTH_URL}?{urllib.parse.urlencode(params)}"
    
    return redirect(auth_url)
 
-#callback occurs after login route, we assign our access tokens into our session 
+# callback occurs after login route, we assign our access tokens into our session 
 @app.route('/callback')
 def callback():
-   if 'error' in request.args:
+   if 'error' in request.args: # if an error is encountered we reroute and display error
       return jsonify({'error' : request.args['error']})
    
    if 'code' in request.args:
@@ -69,23 +78,26 @@ def callback():
          'client_id': client_id,
          'client_secret': client_secret
       }
-      
+   # we now ask for token info using our request body as its data, we are then given the current login sessions info
    response = requests.post(TOKEN_URL, data=req_body)
    token_info = response.json()
    
+   # assigning our session and the tokens we got from our request above
    session['access_token'] = token_info['access_token'] #access tokens given to us by spotify are stored in a session
    session['refresh_token'] = token_info['refresh_token'] #refresh token required when checking if we still have an access token
    session['expires_at'] = datetime.now().timestamp() + token_info['expires_in'] #our tokens have expiration times set by spotify
+   id = s.getUserID(session['access_token'])
+   session['id'] = id
    
    return redirect('/home') 
 
-#refresh route refreshes our auth with the user, giving us our tokens again
+# refresh route refreshes our auth with the user, giving us our tokens again
 @app.route('/refresh-token')
 def refresh_token():
-   if 'refresh_token' not in session:
+   if 'refresh_token' not in session: #if our refresh token isnt found, we reroute to login so we can restart token process
       return redirect('/login')
    
-   #if the expiration time has been met we request another token.
+   # if the expiration time has been met we request another token.
    if datetime.now().timestamp() > session['expires_at']:
       req_body = {
          'grant_type': 'refresh_token',
@@ -93,9 +105,12 @@ def refresh_token():
          'client_id': client_id,
          'client_secret': client_secret
       }
-      
+   
+   # requesting the token info again
    response = requests.post(TOKEN_URL, data=req_body)
    new_token_info = response.json()
+
+   # assigning our info into our session as done before in /callback
    session['access_token'] = new_token_info['access_token']
    session['expires_at'] = datetime.now().timestamp() + new_token_info['expires_in']     
    
@@ -103,6 +118,7 @@ def refresh_token():
 
 #-------------------------------------------------------------------------------------------------------------#
 
+# ----not completed---- displaying the users playlists
 @app.route('/playlists')
 def get_playlists():
    if 'access_token' not in session:
@@ -115,6 +131,7 @@ def get_playlists():
 
    return render_template('user_playlist.html', data=data)
 
+# ----not completed---- displaying users followed artists
 @app.route('/followed-artists')
 def followed_artists():
    if 'access_token' not in session:
@@ -127,6 +144,10 @@ def followed_artists():
    
    return jsonify(artists)
 
+# ----completed---- this first route gets a user query and displays related content
+
+# route for displaying the user search option. The posted search terms are then sent to the next route (below)
+
 @app.route('/user-recommendations', methods=["GET", "POST"])
 def userRecommendations():
    if 'access_token' not in session:
@@ -134,13 +155,17 @@ def userRecommendations():
    
    if datetime.now().timestamp() > session['expires_at']:
       return redirect('/refresh-token')
-   #recommended_tracks = s.getRecommendations(token,'artist', id)
-   if request.method == "POST":
-      name = ''
-      name = str(request.form.get("name"))
-      dictTracks, dictArtists = s.search_for(token, name)
-      return render_template("user_searchresults.html", tracks=dictTracks,artists=dictArtists)
-   return render_template("user_recommendations.html")
+   
+   if request.method == "POST": # if we recieve a post request from the submit button in the website we continue
+      name = '' 
+      name = str(request.form.get("name")) # locating the name tag we placed for our form in html, assign input into variable name
+      dictTracks, dictArtists = s.search_for(token, name) # from the name we inputted, we search for anything that has this name
+      return render_template("user_searchresults.html", tracks=dictTracks,artists=dictArtists) #rendering the template with the dictionarys we got from search
+   return render_template("user_recommendations.html") # default to rendering the blank recommendations screen
+
+# ----completed---- reroute after post request from above and this one gets the actual recommendations
+
+# this route uses the search results we got from the previous route and then calls recommendations based on them.
 
 @app.route('/user-recommendations/results', methods=["GET", "POST"])
 def userRecommendations_results():
@@ -150,20 +175,23 @@ def userRecommendations_results():
    if datetime.now().timestamp() > session['expires_at']:
       return redirect('/refresh-token')
    
+   # when we recieve the post request from whatever option the user wanted we continue
    if request.method == "POST":
-      id =''
+      id ='' 
       seed=''
-      id = str(request.form.get('id'))
-      seed = str(request.form.get('seed'))
+      id = str(request.form.get('id')) # assigning id
+      seed = str(request.form.get('seed')) # assigning seed (whether its a track/artist)
 
-      session['name'] = str(request.form.get('name'))
+      session['name'] = str(request.form.get('name')) # placing the name of the item the user placed into our session
 
-      recommendations = s.getRecommendations(token,seed,id)
+      recommendations = s.getRecommendations(token,seed,id) #get recommendations from the users input
 
-      session['recommendations'] = json.dumps(recommendations)
+      session['recommendations'] = json.dumps(recommendations) # placing the recommendations into our session so we can access it later
 
-      return render_template("recommendations.html", data=recommendations)
+      return render_template("recommendations.html", data=recommendations) # render the recommendations
    return render_template("recommendations.html")
+
+# route that creates playlists if the user chooses to create one, redirects to a playlist made prompt
 
 @app.route('/create-playlist', methods=["GET", "POST"])
 def create_Playlist():
@@ -172,24 +200,30 @@ def create_Playlist():
    
    if datetime.now().timestamp() > session['expires_at']:
       return redirect('/refresh-token')
+   
+   # post requests from user inputs
    if request.method == "POST":
-      url = f'{API_URL}me'
-      headers = get_auth_header(session['access_token'])
-
-      result = requests.get(url, headers=headers)
-      id = json.loads(result.content)['id']
-
+      # getting the id of the user from the session
+      id = session['id']
+ 
+      # create a playlist using the users id and name from the recommendations
       idPlaylist = s.createPlaylist(session['access_token'], id, 'playlist', session['name'])['id']
       
+      # we get the recommendations list from our previous route and load it into our current route
       recommendations_json = session.get('recommendations', '{}')
       recommendations = json.loads(recommendations_json)
-
+      
+      # using this list we then add the items into our playlist that we made before
       try:
          s.addPlaylist(session['access_token'], idPlaylist, recommendations)
-      except TypeError:
-         return render_template("playlistsmade.html")
+      except TypeError: # at some point we get a typeerror (not sure why lol), but all items do get loaded
+         return render_template("playlistsmade.html") # render that the playlist got made
       return render_template("playlistsmade.html")
    return render_template("playlistsmade.html")
+
+# the home page after the login route
+
+# home page of the website, nothing too fancy, we just display everything the website holds, and also just some new music
 
 @app.route('/home')
 def home():
@@ -199,13 +233,17 @@ def home():
    if datetime.now().timestamp() > session['expires_at']:
       return redirect('/refresh-token')
    
+   # just grabbing new releases and the users top tracks
    newReleases = s.newReleases(token)
    toptracks = s.topTracks(session['access_token'], 4)
    
-
+   # they get displayed here for the user to see new music that got released
    return render_template('home.html', newrelease=newReleases, toptracks=toptracks)
 
-#testing functions route
+# testing functions route
+
+# a test route for testing any html and python passing, helps when debugging and seeing what is gathered
+
 @app.route('/test')
 def test():
    if 'access_token' not in session:
@@ -213,11 +251,7 @@ def test():
    
    if datetime.now().timestamp() > session['expires_at']:
       return redirect('/refresh-token')
-   url = f'{API_URL}me'
-   headers = get_auth_header(session['access_token'])
-
-   result = requests.get(url, headers=headers)
-   id = json.loads(result.content)['id']
+   id = s.getUserID(session['access_token'])
    
    list = s.getLikedSongsIDs(session['access_token'])
    totalFeatures,ids = s.getAudioFeatures(session['access_token'], list)
@@ -231,6 +265,8 @@ def test():
 
    return jsonify('Test')
 
+# ----somewhat completed----
+# getting a playlist based on whats in the users liked playlist
 @app.route('/discovery-test')
 def getDiscovery():
    if 'access_token' not in session:
@@ -238,11 +274,9 @@ def getDiscovery():
    
    if datetime.now().timestamp() > session['expires_at']:
       return redirect('/refresh-token')
-   url = f'{API_URL}me'
-   headers = get_auth_header(session['access_token'])
+   
+   id = s.getUserID(session['access_token'])
 
-   result = requests.get(url, headers=headers)
-   id = json.loads(result.content)['id']
    i = 0
    totalList =[]
    while i <= 1000:
@@ -257,6 +291,6 @@ def getDiscovery():
    except TypeError:
       return render_template("playlistsmade.html")
    return jsonify('Test')
-   
+
 if __name__ == '__main__':
    app.run(host='0.0.0.0', debug=True)

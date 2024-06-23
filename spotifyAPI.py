@@ -15,7 +15,7 @@ client_secret = os.getenv("CLIENT_SECRET")
 #standard urls for api interaction
 API_URL = 'https://api.spotify.com/v1/'
 
-def get_token():
+def get_token(): #ipoed
     auth_string = client_id + ":" + client_secret
     auth_bytes = auth_string.encode("utf-8")
     auth_base64 = str(base64.b64encode(auth_bytes), "utf-8")
@@ -79,7 +79,7 @@ def getTrack(token,id):
 
     return preview_url
 
-def getRecommendations(token,seed,id):
+def getRecommendations(token,seed,id): #ipoed
     url = f"{API_URL}recommendations?limit=50&seed_{seed}={id}"
     headers = get_auth_header(token)
     result = get(url, headers=headers)
@@ -148,14 +148,6 @@ def userFollowedArtists(token):
     
     return dict
 
-def getUserid(token):
-    url = f'{API_URL}me'
-    headers = get_auth_header(token)
-
-    result = get(url, headers=headers)
-
-    id = json.loads(result.content)['id']
-    return id
 
 def createPlaylist(token,id, playlist_name,item):
     url = f'{API_URL}users/{id}/playlists'
@@ -212,6 +204,7 @@ def getDiscovery(token):
     #getting discovery channel playlist, should make an automated playlist that gathers different genre music based on user listening.
     pass
 
+#NOT BEING USED CURRENTLY, FIX AND EXPERIMENT
 def createDiscovery(token): #token must be session['access-token']
     url = f'{API_URL}users/{id}/playlists'
     playlist_name = "Discovery Channel"
@@ -265,28 +258,21 @@ def checkSaved(token,id):
 def getAudioFeatures(token, list):
     listIDs=[]
     i=0
-    '''
-    try:
-        for item in list:
-            listIDs.append(item['id'])
-    except Exception:
-    '''
     while i < len(list):
         a = 0
         for item in list[i]:
-            print(checkSaved(token,item['id']))
             listIDs.append(item['id'])
             print(f'appended {a}')
             a +=1
         i +=1
 
     i = 0
-    dict = []
+    queryDict = []
     while i <= 4:
         id = listIDs[random.randint(0,len(listIDs))]
-        dict.append(id)
+        queryDict.append(id)
         i +=1
-    ids = '%2C'.join(dict)
+    ids = '%2C'.join(queryDict)
 
     url = f'{API_URL}audio-features?ids={ids}'
     headers = get_auth_header(token)
@@ -320,33 +306,12 @@ def getAudioFeatures(token, list):
         totalFeatures[item] = totalFeatures[item]/10
         featuresList.append(item+str(totalFeatures[item]))
 
-    '''
-    totalFeatures['acousticness'] = totalFeatures['acousticness']/10
-    totalFeatures['danceability'] = totalFeatures['danceability']/10
-    totalFeatures['energy'] = totalFeatures['energy']/10
-    totalFeatures['instrumentalness'] = totalFeatures['instrumentalness']/10
-    totalFeatures['liveness'] = totalFeatures['danceability']/10
-    totalFeatures['loudness'] = totalFeatures['loudness']/10
-    totalFeatures['speechiness'] = totalFeatures['speechiness']/10
-    totalFeatures['tempo'] = totalFeatures['tempo']/10
-    totalFeatures['valence'] = totalFeatures['valence']/10
-    '''
         
     return featuresList, ids
 
 def getRecommendationsAudioFeatures(token, featuresList,ids):
     string = '&'.join(featuresList)
-    '''
-    f'target_acousticness={totalFeatures['acousticness']}\
-        &target_danceability={totalFeatures['danceability']}\
-            &target_energy={totalFeatures['energy']}\
-            &target_instrumentalness={totalFeatures['instrumentalness']}\
-            &target_liveness={totalFeatures['liveness']}\
-            &target_loudness={totalFeatures['loudness']}\
-            &target_speechiness={totalFeatures['speechiness']}\
-            &target_tempo={totalFeatures['tempo']}\
-            &target_valence={totalFeatures['valence']}'
-    '''
+
     url = f'{API_URL}recommendations?limit=50&seed_tracks={ids}&{string}'
     headers = get_auth_header(token)
     result = get(url, headers=headers)
@@ -361,6 +326,15 @@ def getRecommendationsAudioFeatures(token, featuresList,ids):
         for item in response
     ]
     return dict
+
+def getUserID(token):
+    url = f'{API_URL}me'
+    headers = get_auth_header(token)
+
+    result = get(url, headers=headers)
+    id = json.loads(result.content)['id']
+
+    return id
 
 if __name__ == "__main__":
     token = get_token()
