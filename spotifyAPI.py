@@ -79,8 +79,8 @@ def getTrack(token,id):
 
     return preview_url
 
-def getRecommendations(token,seed,id): #ipoed
-    url = f"{API_URL}recommendations?limit=50&seed_{seed}={id}"
+def getRecommendations(token,seed,ids): #ipoed
+    url = f"{API_URL}recommendations?limit=50&seed_{seed}={ids}"
     headers = get_auth_header(token)
     result = get(url, headers=headers)
     json_result = json.loads(result.content)['tracks']
@@ -200,36 +200,22 @@ def topTracks(token, limit):
 
     return tracks
 
+
 def getDiscovery(token):
     #getting discovery channel playlist, should make an automated playlist that gathers different genre music based on user listening.
-    pass
 
-#NOT BEING USED CURRENTLY, FIX AND EXPERIMENT
-def createDiscovery(token): #token must be session['access-token']
-    url = f'{API_URL}users/{id}/playlists'
-    playlist_name = "Discovery Channel"
-    headers = {
-        "Authorization" : "Bearer " + token,
-        "Content-Type" : 'application/json'
-        }
-    data = {
-        "name": f"{playlist_name}",
-        "description" : f"Your weekly discovery channel",
-        "public" : False
-    }
+    #get top tracks in last 4 weeks
+    url = f'{API_URL}me/top/tracks?time_range=short_term&limit=5'
+    headers = get_auth_header(token)
+    result = get(url, headers=headers)
 
-    topTracks = topTracks(token, 20) #think i was grabbing different genres here
-    genreCount = {}
-    for item in topTracks:
-        if item in genreCount:
-            genreCount[f'{item}'] += 1
-        else:
-            genreCount.append(f'{item}')
-            genreCount[f'{item}'] = 0
+    items = []
+    for item in json.loads(result.content)['items']:
+        items.append(item['id'])
 
-    print(genreCount)
+    trackIds = '%2C'.join(items)
 
-    return genreCount
+    return getRecommendations(token, 'tracks', trackIds)
 
 #getting user liked songs
 def getLikedSongsIDs(token,offset):

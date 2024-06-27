@@ -5,7 +5,7 @@ import urllib.parse
 import requests
 from datetime import *
 import json
-#import sqldatabase
+import sqldatabase
 
 app = Flask(__name__)
 
@@ -52,14 +52,6 @@ def login():
       'show_dialog': False
    }
 
-   date = datetime.now()
-   start_date = date.strftime('%d%m%y')
-   date2 = date + timedelta(days=7)
-   next_date = date2.strftime('%d%m%y')
-
-   #sqldatabase.insertData(id, start_date, next_date)
-
-   
    auth_url = f"{AUTH_URL}?{urllib.parse.urlencode(params)}"
    
    return redirect(auth_url)
@@ -88,6 +80,13 @@ def callback():
    session['expires_at'] = datetime.now().timestamp() + token_info['expires_in'] #our tokens have expiration times set by spotify
    id = s.getUserID(session['access_token'])
    session['id'] = id
+
+   start_date = datetime.now()
+   next_date = start_date + timedelta(days=7)
+   start_date = start_date.strftime('%d%m%y')
+   next_date = next_date.strftime('%d%m%y')
+
+   sqldatabase.insertData(session['id'], start_date, next_date)
    
    return redirect('/home') 
 
@@ -236,6 +235,13 @@ def home():
    # just grabbing new releases and the users top tracks
    newReleases = s.newReleases(token)
    toptracks = s.topTracks(session['access_token'], 4)
+
+   #checking dates of user for the discover weekly functionality
+   print(f'IS DATE? {sqldatabase.returnDate(session['id'])}')
+   if sqldatabase.returnDate(session['id']):
+      return redirect('/discovery-test')
+   else:
+      print('False')
    
    # they get displayed here for the user to see new music that got released
    return render_template('home.html', newrelease=newReleases, toptracks=toptracks)
@@ -251,22 +257,12 @@ def test():
    
    if datetime.now().timestamp() > session['expires_at']:
       return redirect('/refresh-token')
-   id = s.getUserID(session['access_token'])
    
-   list = s.getLikedSongsIDs(session['access_token'])
-   totalFeatures,ids = s.getAudioFeatures(session['access_token'], list)
-
-   getDiscovery = s.createPlaylist(session['access_token'], id, 'Discovery Channel', 'user')['id']
-   recommendations = s.getRecommendationsAudioFeatures(session['access_token'], totalFeatures,ids)
-   try:
-      s.addPlaylist(session['access_token'], getDiscovery, recommendations)
-   except TypeError:
-      return render_template("playlistsmade.html")
-
-   return jsonify('Test')
+   return jsonify(s.getDiscovery(session['access_token']))
 
 # ----somewhat completed----
 # getting a playlist based on whats in the users liked playlist
+# not happy with this at the moment
 @app.route('/discovery-test')
 def getDiscovery():
    if 'access_token' not in session:
@@ -289,7 +285,7 @@ def getDiscovery():
    try:
       s.addPlaylist(session['access_token'], getDiscovery, recommendations)
    except TypeError:
-      return render_template("playlistsmade.html")
+      return render_template('playlistsmade.html')
    return jsonify('Test')
 
 if __name__ == '__main__':
