@@ -5,7 +5,6 @@ import urllib.parse
 import requests
 from datetime import *
 import json
-import sqldatabase
 
 app = Flask(__name__)
 
@@ -89,8 +88,6 @@ def callback():
    next_date = start_date + timedelta(days=7)
    start_date = start_date.strftime('%d%m%y')
    next_date = next_date.strftime('%d%m%y')
-
-   sqldatabase.insertData(session['id'], start_date, next_date)
    
    return redirect('/home') 
 
@@ -239,17 +236,6 @@ def home():
    # just grabbing new releases and the users top tracks
    newReleases = s.newReleases(token)
    toptracks = s.topTracks(session['access_token'], 4)
-   date = datetime.now()
-   date = date.strftime('%d%m%y')
-   #checking dates of user for the discover weekly functionality
-   print(f'IS DATE? {sqldatabase.returnDate(session['id'], date)}')
-   date = datetime.now()
-   date = date.strftime('%d%m%y')
-   
-   if sqldatabase.returnDate(session['id'], date ):
-      return redirect('/discovery-test')
-   else:
-      print('False')
    
    # they get displayed here for the user to see new music that got released
    return render_template('home.html', newrelease=newReleases, toptracks=toptracks)
