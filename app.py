@@ -9,27 +9,31 @@ import sqldatabase
 
 app = Flask(__name__)
 
+# standard urls and end points so i don't have to rewrite all the time
 API_URL = 'https://api.spotify.com/v1/'
 REDIRECT_URI = "http://127.0.0.1:5000/callback"
 AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = "https://accounts.spotify.com/api/token"
 
-client_id = os.getenv("CLIENT_ID")
-client_secret = os.getenv("CLIENT_SECRET")
+client_id = os.getenv("CLIENT_ID") # getting client id (global)
+client_secret = os.getenv("CLIENT_SECRET") # getting client secret (global)
 
-token = s.get_token()
+token = s.get_token() # global token
 
-newRelease = s.newReleases(token)
+newRelease = s.newReleases(token) # getting all new releases
 
-session = {}
+session = {} # session dictionary (outside since it is global)
 
+# is this even being used? lol
 def get_auth_header(token):
    return {"Authorization" : "Bearer " + token}
 
+# landing page for first time use
 @app.route('/')
 def index():
    return render_template("Home_Page.html")
 
+# just a route to log user out and remove the access token
 @app.route('/logout')
 def logout():
    session['access_token'] = 'None'
@@ -118,6 +122,7 @@ def refresh_token():
 #-------------------------------------------------------------------------------------------------------------#
 
 # ----not completed---- displaying the users playlists
+# remove if not being used by deadline
 @app.route('/playlists')
 def get_playlists():
    if 'access_token' not in session:
@@ -131,6 +136,7 @@ def get_playlists():
    return render_template('user_playlist.html', data=data)
 
 # ----not completed---- displaying users followed artists
+# remove if not being used by deadline
 @app.route('/followed-artists')
 def followed_artists():
    if 'access_token' not in session:
@@ -144,9 +150,7 @@ def followed_artists():
    return jsonify(artists)
 
 # ----completed---- this first route gets a user query and displays related content
-
 # route for displaying the user search option. The posted search terms are then sent to the next route (below)
-
 @app.route('/user-recommendations', methods=["GET", "POST"])
 def userRecommendations():
    if 'access_token' not in session:
@@ -158,14 +162,15 @@ def userRecommendations():
    if request.method == "POST": # if we recieve a post request from the submit button in the website we continue
       name = '' 
       name = str(request.form.get("name")) # locating the name tag we placed for our form in html, assign input into variable name
-      dictTracks, dictArtists = s.search_for(token, name) # from the name we inputted, we search for anything that has this name
+      try:
+         dictTracks, dictArtists = s.search_for(token, name) # from the name we inputted, we search for anything that has this name
+      except None:
+         return render_template("noresults.html")
       return render_template("user_searchresults.html", tracks=dictTracks,artists=dictArtists) #rendering the template with the dictionarys we got from search
    return render_template("user_recommendations.html") # default to rendering the blank recommendations screen
 
 # ----completed---- reroute after post request from above and this one gets the actual recommendations
-
 # this route uses the search results we got from the previous route and then calls recommendations based on them.
-
 @app.route('/user-recommendations/results', methods=["GET", "POST"])
 def userRecommendations_results():
    if 'access_token' not in session:
@@ -183,15 +188,15 @@ def userRecommendations_results():
 
       session['name'] = str(request.form.get('name')) # placing the name of the item the user placed into our session
 
-      recommendations = s.getRecommendations(token,seed,id) #get recommendations from the users input
+      recommendations = s.getRecommendations(session['access_token'],seed,id) #get recommendations from the users input
 
       session['recommendations'] = json.dumps(recommendations) # placing the recommendations into our session so we can access it later
 
       return render_template("recommendations.html", data=recommendations) # render the recommendations
    return render_template("recommendations.html")
 
+# ----- creating the playlist route ------
 # route that creates playlists if the user chooses to create one, redirects to a playlist made prompt
-
 @app.route('/create-playlist', methods=["GET", "POST"])
 def create_Playlist():
    if 'access_token' not in session:
@@ -220,10 +225,9 @@ def create_Playlist():
       return render_template("playlistsmade.html")
    return render_template("playlistsmade.html")
 
-# the home page after the login route
-
+# -----the home page after the login route------
 # home page of the website, nothing too fancy, we just display everything the website holds, and also just some new music
-
+# also added sql to somewhat integrate the weekly discovery functionality (saving for later)
 @app.route('/home')
 def home():
    if 'access_token' not in session:
@@ -235,10 +239,14 @@ def home():
    # just grabbing new releases and the users top tracks
    newReleases = s.newReleases(token)
    toptracks = s.topTracks(session['access_token'], 4)
-
+   date = datetime.now()
+   date = date.strftime('%d%m%y')
    #checking dates of user for the discover weekly functionality
-   print(f'IS DATE? {sqldatabase.returnDate(session['id'])}')
-   if sqldatabase.returnDate(session['id']):
+   print(f'IS DATE? {sqldatabase.returnDate(session['id'], date)}')
+   date = datetime.now()
+   date = date.strftime('%d%m%y')
+   
+   if sqldatabase.returnDate(session['id'], date ):
       return redirect('/discovery-test')
    else:
       print('False')
@@ -246,10 +254,8 @@ def home():
    # they get displayed here for the user to see new music that got released
    return render_template('home.html', newrelease=newReleases, toptracks=toptracks)
 
-# testing functions route
-
+# ------testing functions route-----
 # a test route for testing any html and python passing, helps when debugging and seeing what is gathered
-
 @app.route('/test')
 def test():
    if 'access_token' not in session:
@@ -262,7 +268,7 @@ def test():
 
 # ----somewhat completed----
 # getting a playlist based on whats in the users liked playlist
-# not happy with this at the moment
+# not happy with this at the moment, wont be added by deadline most likely
 @app.route('/discovery-test')
 def getDiscovery():
    if 'access_token' not in session:

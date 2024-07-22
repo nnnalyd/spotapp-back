@@ -44,16 +44,16 @@ def getData():
         startdate = datetime.strptime(f'{x[1]}','%d%m%y')
         nextdate = datetime. strptime(f'{x[2]}','%d%m%y')
 
-def returnDate(id):
+def returnDate(id, date):
     mycursor.execute(f"SELECT * FROM users WHERE id='{id}'")
     results = mycursor.fetchall()
     if results:
         print('found')
         for x in results:
             print(x)
-            startdate = datetime.strptime(f'{x[1]}','%d%m%y')
+            datenow = datetime.strptime(date, f'%d%m%y')
             nextdate = datetime. strptime(f'{x[2]}','%d%m%y')
-            if nextdate == startdate:
+            if nextdate == datenow:
                 return True
             else:
                 return False
@@ -62,6 +62,5 @@ def returnDate(id):
 
 
 if __name__ == "__main__":
-
     returnDate('revilutiongames')
 
