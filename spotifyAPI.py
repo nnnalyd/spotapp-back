@@ -208,9 +208,10 @@ def getUserID(token):
 
     return id
 
+# gathers the users top tracks
 def topTracks(token, limit):
-    url = f'{API_URL}me/top/tracks?limit={limit}'
-    headers = get_auth_header(token)
+    url = f'{API_URL}me/top/tracks?limit={limit}' # url as usual
+    headers = get_auth_header(token) # usual
 
     result = get(url, headers=headers)
 
