@@ -47,12 +47,13 @@ def login():
    # scope defines the permissions our user can give us, they have the option to decline auth
    scope = "user-read-private user-read-email user-library-read user-top-read user-follow-read playlist-modify-public playlist-modify-private"
    
+   # set of parameters that are placed into login route to ask the user what we want
    params = {
       'client_id' : client_id,
       'response_type' : 'code',
       'scope' : scope,
       'redirect_uri' : REDIRECT_URI,
-      'show_dialog': False
+      'show_dialog': True # set to true if we want to always show dialog, set as false for testing
    }
 
    auth_url = f"{AUTH_URL}?{urllib.parse.urlencode(params)}"
@@ -65,6 +66,7 @@ def callback():
    if 'error' in request.args: # if an error is encountered we reroute and display error
       return jsonify({'error' : request.args['error']})
    
+   # a set of request arguments, defining what we want, and giving auth to prove we are allowed to have it
    if 'code' in request.args:
       req_body = {
          'code': request.args['code'],
@@ -83,11 +85,6 @@ def callback():
    session['expires_at'] = datetime.now().timestamp() + token_info['expires_in'] #our tokens have expiration times set by spotify
    id = s.getUserID(session['access_token'])
    session['id'] = id
-
-   start_date = datetime.now()
-   next_date = start_date + timedelta(days=7)
-   start_date = start_date.strftime('%d%m%y')
-   next_date = next_date.strftime('%d%m%y')
    
    return redirect('/home') 
 
@@ -117,34 +114,6 @@ def refresh_token():
    return redirect('/home')
 
 #-------------------------------------------------------------------------------------------------------------#
-
-# ----not completed---- displaying the users playlists
-# remove if not being used by deadline
-@app.route('/playlists')
-def get_playlists():
-   if 'access_token' not in session:
-      return redirect('/login')
-   
-   if datetime.now().timestamp() > session['expires_at']:
-      return redirect('/refresh-token')
-   
-   data = s.userPlaylists(session['access_token'])
-
-   return render_template('user_playlist.html', data=data)
-
-# ----not completed---- displaying users followed artists
-# remove if not being used by deadline
-@app.route('/followed-artists')
-def followed_artists():
-   if 'access_token' not in session:
-      return redirect('/login')
-   
-   if datetime.now().timestamp() > session['expires_at']:
-      return redirect('/refresh-token')
-   
-   artists = s.userFollowedArtists(session['access_token'])
-   
-   return jsonify(artists)
 
 # ----completed---- this first route gets a user query and displays related content
 # route for displaying the user search option. The posted search terms are then sent to the next route (below)
@@ -224,7 +193,6 @@ def create_Playlist():
 
 # -----the home page after the login route------
 # home page of the website, nothing too fancy, we just display everything the website holds, and also just some new music
-# also added sql to somewhat integrate the weekly discovery functionality (saving for later)
 @app.route('/home')
 def home():
    if 'access_token' not in session:
@@ -252,33 +220,6 @@ def test():
    
    return jsonify(s.getDiscovery(session['access_token']))
 
-# ----somewhat completed----
-# getting a playlist based on whats in the users liked playlist
-# not happy with this at the moment, wont be added by deadline most likely
-@app.route('/discovery-test')
-def getDiscovery():
-   if 'access_token' not in session:
-      return redirect('/login')
-   
-   if datetime.now().timestamp() > session['expires_at']:
-      return redirect('/refresh-token')
-   
-   id = s.getUserID(session['access_token'])
-
-   i = 0
-   totalList =[]
-   while i <= 1000:
-      list = s.getLikedSongsIDs(session['access_token'], f'&offset={i}')
-      totalList.append(list)
-      i+=50
-   totalFeatures,ids = s.getAudioFeatures(session['access_token'], totalList)
-   getDiscovery = s.createPlaylist(session['access_token'], id, 'Discovery Channel', 'user')['id']
-   recommendations = s.getRecommendationsAudioFeatures(session['access_token'], totalFeatures,ids)
-   try:
-      s.addPlaylist(session['access_token'], getDiscovery, recommendations)
-   except TypeError:
-      return render_template('playlistsmade.html')
-   return jsonify('Test')
-
+# this is the main initialise of the program, we run the app on the local host server
 if __name__ == '__main__':
-   app.run(host='0.0.0.0', debug=True)
+   app.run(host='0.0.0.0', debug=True) # set to false once on publish

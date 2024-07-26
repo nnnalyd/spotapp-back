@@ -5,7 +5,6 @@ import os
 import base64
 from requests import post, get
 import json
-import random
 
 #this grabs my client_id and client_secret, should not be shared and is stored by server only
 load_dotenv()
@@ -152,45 +151,6 @@ def newReleases(token):
     
     return dict
 
-# getting the users playlists 
-# not being used currently, delete not needed
-def userPlaylists(token):
-    url = f'{API_URL}me/playlists?limit=5'
-    headers = get_auth_header(token)
-    
-    result = get(url, headers=headers)
-    json_result = json.loads(result.content)['items']
-
-    dict = [
-        {
-            'playlist_name' : item['name'],
-            'playlist_img' : item['images'][0]['url']
-        }
-        for item in json_result
-    ]
-    
-    return dict
-
-# getting the users followed artists
-# could be used for liked artist recommendations
-# delete if not used by deadline or keep
-
-def userFollowedArtists(token):
-    url = f'{API_URL}me/following?type=artist&limit=50'
-    headers = get_auth_header(token)
-    result = get(url, headers=headers)
-
-    json_result = json.loads(result.content)['artists']['items']
-    
-    dict = [
-        {
-            'artist_name': item['name']
-        }
-        for item in json_result
-    ]
-    
-    return dict
-
 # creating playlist
 def createPlaylist(token,id, playlist_name,item):
     url = f'{API_URL}users/{id}/playlists' # url endpoint of making playlist
@@ -226,6 +186,28 @@ def addPlaylist(token, id, dict):
     result = json.loads(post(url, headers=headers, json=data))
     return result
 
+# checking if a string of ids is saved within the users liked songs
+# used in recommendations filtering
+def checkSaved(token,id):
+    url = f'{API_URL}me/tracks/contains?ids={id}'
+    headers=get_auth_header(token)
+    result = get(url, headers=headers)
+
+    # the response from the request
+    booleans = json.loads(result.content)
+
+    return booleans # when called we get the array of booleans
+
+# get the users id, so we can use it to post playlists and add to playlists
+def getUserID(token):
+    url = f'{API_URL}me'
+    headers = get_auth_header(token)
+    result = get(url, headers=headers)
+
+    id = json.loads(result.content)['id'] # we want to return id and stuff
+
+    return id
+
 def topTracks(token, limit):
     url = f'{API_URL}me/top/tracks?limit={limit}'
     headers = get_auth_header(token)
@@ -243,128 +225,7 @@ def topTracks(token, limit):
 
     return tracks
 
-
-def getDiscovery(token):
-    #getting discovery channel playlist, should make an automated playlist that gathers different genre music based on user listening.
-
-    #get top tracks in last 4 weeks
-    url = f'{API_URL}me/top/tracks?time_range=short_term&limit=5'
-    headers = get_auth_header(token)
-    result = get(url, headers=headers)
-
-    items = []
-    for item in json.loads(result.content)['items']:
-        items.append(item['id'])
-
-    trackIds = '%2C'.join(items)
-
-    return getRecommendations(token, 'tracks', trackIds)
-
-#getting user liked songs
-def getLikedSongsIDs(token,offset):
-    url = f'{API_URL}me/tracks?limit=50&{offset}'
-    headers=get_auth_header(token)
-    result = get(url, headers=headers)
-
-    items = [
-        {
-            'id': item['track']['id']
-        }
-        for item in json.loads(result.content)['items']
-    ]
-    return items
-
-def checkSaved(token,id):
-    url = f'{API_URL}me/tracks/contains?ids={id}'
-    headers=get_auth_header(token)
-    result = get(url, headers=headers)
-
-    boolean = json.loads(result.content)
-
-    return boolean
-
-#big algo for getting average audio feature values
-def getAudioFeatures(token, list):
-    listIDs=[]
-    i=0
-    while i < len(list):
-        a = 0
-        for item in list[i]:
-            listIDs.append(item['id'])
-            print(f'appended {a}')
-            a +=1
-        i +=1
-
-    i = 0
-    queryDict = []
-    while i <= 4:
-        id = listIDs[random.randint(0,len(listIDs))]
-        queryDict.append(id)
-        i +=1
-    ids = '%2C'.join(queryDict)
-
-    url = f'{API_URL}audio-features?ids={ids}'
-    headers = get_auth_header(token)
-
-    result = get(url, headers=headers)
-    features = json.loads(result.content)['audio_features']
-    totalFeatures = {
-        "target_acousticness=": 0,
-        "target_danceability=": 0,
-        "target_energy=": 0,
-        "target_instrumentalness=": 0,
-        "target_liveness=": 0,
-        "target_loudness=": 0,
-        "target_speechiness=": 0,
-        "target_tempo=": 0,
-        "target_valence=": 0
-    }
-    
-    for item in features:
-        totalFeatures['target_acousticness='] += item['acousticness']
-        totalFeatures['target_danceability='] += item['danceability']
-        totalFeatures['target_energy='] += item['energy']
-        totalFeatures['target_instrumentalness='] += item['instrumentalness']
-        totalFeatures['target_liveness='] += item['liveness']
-        totalFeatures['target_loudness='] += item['loudness']
-        totalFeatures['target_speechiness='] += item['speechiness']
-        totalFeatures['target_tempo='] += item['tempo']
-        totalFeatures['target_valence='] += item['valence']
-    featuresList = []
-    for item in totalFeatures:
-        totalFeatures[item] = totalFeatures[item]/10
-        featuresList.append(item+str(totalFeatures[item]))
-
-        
-    return featuresList, ids
-
-def getRecommendationsAudioFeatures(token, featuresList,ids):
-    string = '&'.join(featuresList)
-
-    url = f'{API_URL}recommendations?limit=50&seed_tracks={ids}&{string}'
-    headers = get_auth_header(token)
-    result = get(url, headers=headers)
-    response = json.loads(result.content)['tracks']
-    dict = [
-        {
-            'track_name' : item['name'],
-            'artist_name' : item['artists'][0]['name'],
-            'track_cover' : item['album']['images'][0]['url'],
-            'track_id' : item['id']
-        }
-        for item in response
-    ]
-    return dict
-
-def getUserID(token):
-    url = f'{API_URL}me'
-    headers = get_auth_header(token)
-
-    result = get(url, headers=headers)
-    id = json.loads(result.content)['id']
-
-    return id
-
+# testing any functions within here instead of the webpage, just for checking return statements/stubs
 if __name__ == "__main__":
     token = get_token()
     name = input("Name: ")
